@@ -154,9 +154,9 @@ tabItem(tabName = "GDP",
         tabsetPanel(id = "continent",
         tabPanel("Test"),
             tabPanel("Asia", gapModuleUI("asia")),
-            tabPanel("Europe", gapModuleUI("europe")),
-            tabPanel("Oceania", gapModuleUI("oceania"))
-
+            tabPanel("Europe", tableTestUI("test")),
+            tabPanel("Oceania", DT::dataTableOutput("tbl"))#,
+           # tabPanel("test", DT::dataTableOutput("tbl")),
         )
         
       )
@@ -198,10 +198,11 @@ server <- function(input, output,session) {
     callModule(gapModule, "asia", asia_data)
     callModule(gapModule, "europe", europe_data)
     callModule(gapModule, "oceania", oceania_data)
+    callModule(tableTest, "test")
 
-
-
-
+    output$tbl = DT::renderDataTable(
+      iris, options = list(lengthChange = FALSE)
+      )
 
     #Automatically stop a Shiny app when closing the browser tab
     session$onSessionEnded(stopApp)

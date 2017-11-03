@@ -1,49 +1,4 @@
-## app.R ##
-library(shiny)
-library(shinydashboard)
-library(dplyr)
-source("modules/data.R")
-source("modules/gapModule.R")
-
-
-
-
-
-
-
-
-
-##outsurce
-sidebar <- dashboardSidebar(
-  sidebarMenu(id = "sidebar", #bookmarking
-    menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-    menuItem("Widgets", icon = icon("th"), tabName = "widgets",
-             badgeLabel = "new", badgeColor = "green"),
-   menuItem("GDP", icon = icon("th"), tabName = "GDP",
-             badgeLabel = "new", badgeColor = "green"),
-
-    ##dynamic
-    menuItemOutput("menuitem")
- )
-)
-
-
-fluidRowoutsourced1 <- fluidRow(
-
-box(
-  title = "Histogram", status = "primary", solidHeader = TRUE,
-  collapsible = TRUE,
-  plotOutput("plot3", height = 250)
-),
-
-box(
-  title = "Inputs", status = "warning", solidHeader = TRUE,
-  "Box content here", br(), "More box content",
-  sliderInput("slider", "Slider input:", 1, 100, 50),
-  textInput("text", "Text input:")
-)
-
-)
+source("global.R")
 
 
 
@@ -139,7 +94,24 @@ dashboardBody(
             textInput("text", "Text input:")
             )
 
-         ,fluidRowoutsourced1
+            ,
+
+            fluidRow(
+
+            box(
+  title = "Histogram", status = "primary", solidHeader = TRUE,
+  collapsible = TRUE,
+  plotOutput("plot3", height = 250)
+),
+
+box(
+  title = "Inputs", status = "warning", solidHeader = TRUE,
+  "Box content here", br(), "More box content",
+  sliderInput("slider", "Slider input:", 1, 100, 50),
+  textInput("text", "Text input:")
+)
+
+)
 
 
         )

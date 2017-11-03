@@ -6,7 +6,18 @@ source("gapModule.R")
 ui <- fluidPage(
   tags$style(type="text/css", ".recalculating { opacity: 1.0; }"),
   titlePanel("Gapminder"),
-  tabsetPanel(id = "continent", 
+  tabsetPanel(id = "continent",
+    tabPanel("Test",
+
+
+    # Input: Slider for the number of bins ----
+        sliderInput(inputId = "bins",
+                  label = "Number of bins:",
+                  min = 1,
+                  max = 50,
+                  value = 30)
+                             )
+    gapModuleUI("all")),
     tabPanel("All", gapModuleUI("all")),
     tabPanel("Africa", gapModuleUI("africa")),
     tabPanel("Americas", gapModuleUI("americas")),

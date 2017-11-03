@@ -1,7 +1,9 @@
 ## app.R ##
 library(shiny)
 library(shinydashboard)
-
+library(dplyr)
+source("modules/data.R")
+source("modules/gapModule.R")
 
 
 
@@ -16,6 +18,8 @@ sidebar <- dashboardSidebar(
   sidebarMenu(id = "sidebar", #bookmarking
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Widgets", icon = icon("th"), tabName = "widgets",
+             badgeLabel = "new", badgeColor = "green"),
+   menuItem("GDP", icon = icon("th"), tabName = "GDP",
              badgeLabel = "new", badgeColor = "green"),
 
     ##dynamic
@@ -44,15 +48,14 @@ box(
 
 
 
-ui <- dashboardPage(
+ui <- dashboardPage(skin = "blue",
 
 ## Header
-  dashboardHeader(title = "My Dashboard",
+  dashboardHeader(
+  title = "My Dashboard",
+  titleWidth = 350,
 
 
-  ## Dynamcic
-      dropdownMenuOutput("messageMenu")
-      ,
 
       ## Message menus (static)
       dropdownMenu(type = "messages",
@@ -171,26 +174,33 @@ dashboardBody(
         tabPanel("Tab2", "Tab content 2")
         )
         )
+      ),
+
+
+      # GDP tab content
+tabItem(tabName = "GDP",
+        tabsetPanel(id = "continent",
+        tabPanel("Test"),
+            tabPanel("Asia", gapModuleUI("asia")),
+            tabPanel("Europe", gapModuleUI("europe")),
+            tabPanel("Oceania", gapModuleUI("oceania"))
+
+        )
+        
       )
+
+
+
+
     )
 
 )
 )
 
-server <- function(input, output) {
+server <- function(input, output,session) {
 
 
-    output$messageMenu <- renderMenu({
-    # Code to generate each of the messageItems here, in a list. This assumes
-    # that messageData is a data frame with two columns, 'from' and 'message'.
-    msgs <- apply(messageData, 1, function(row) {
-        messageItem(from = row[["from"]], message = row[["message"]])
-    })
 
-        # This is equivalent to calling:
-    #   dropdownMenu(type="messages", msgs[[1]], msgs[[2]], ...)
-    dropdownMenu(type = "messages", .list = msgs)
-    })
 
 
 
@@ -213,14 +223,16 @@ server <- function(input, output) {
      })
 
 
+    callModule(gapModule, "asia", asia_data)
+    callModule(gapModule, "europe", europe_data)
+    callModule(gapModule, "oceania", oceania_data)
 
 
 
 
 
-
-
-
+    #Automatically stop a Shiny app when closing the browser tab
+    session$onSessionEnded(stopApp)
 }
 
 

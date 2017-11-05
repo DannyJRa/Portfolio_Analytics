@@ -90,19 +90,24 @@ Quotes_returns_monthly <- Quotes %>%
     group_by(symbol) %>%
     tq_transmute(select     = adjusted, 
                  mutate_fun = periodReturn,
-                 period     = "monthly")
+                 period = "monthly",
+                 col_rename = "Ra")
 
 # Baseline Returns
 
-getSymbols(c("GDAXI"))
 
-baseline_returns_monthly <- "GDAXI" %>%
+
+baseline_returns_monthly <- "XLK" %>%
     tq_get(get  = "stock.prices",
-           from = "2013-01-01", 
-           to   = "2016-12-31") %>%
+           from = "2007-01-01", 
+           to   = "2017-11-01") %>%
            tq_transmute(select     = adjusted, 
                  mutate_fun = periodReturn,
-                 period     = "monthly")
+                 period = "monthly",
+                 col_rename = "Rb")
+
+
+
 
 #Next, join the asset returns with the baseline returns by date.
 ############################### make date seq from: getsymbols_irregular data.R
@@ -118,8 +123,8 @@ returns_joined
 returns_joined <- na.omit(returns_joined)
 
 Quotes_rolling_corr <- returns_joined %>%
-    tq_transmute_xy(x          = monthly.returns.x, 
-                    y          = monthly.returns.y,
+    tq_transmute_xy(x          = Ra, 
+                    y          = Rb,
                     mutate_fun = runCor,
                     n          = 6,
                     col_rename = "rolling.corr.6")
@@ -181,4 +186,7 @@ Quotes_macd %>%
     ggplot(aes(x = date)) + 
     geom_hline(yintercept = 0, color = palette_light()[[1]]) +
     geom_line(aes(y = SMA, col = symbol))
+
+
+
 

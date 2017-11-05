@@ -1,29 +1,4 @@
-# Using csv input
-tq_transmute_fun_options()$TTR
 
-library(tidyquant)
-data(FANG)
-FANG
-#############
-#### Overwrite FANG
-setwd("C:/OneDrive/PowerBI_test/Portfolio_Slicer/Input")
-
-library(data.table)
-
-
-Quotes <- fread("C:/OneDrive/PowerBI_test/Portfolio_Slicer/Input/Quotes_detail.csv")
-
-Quotes$date = as.Date(Quotes$date)
-
-#Quotes=as.data.frame(Quotes)
-Quotes <-subset(Quotes, symbol=="SIE.DE" | symbol=="CBK.DE")
-
-
-
-########               does strange things
-##Quotes = filter(Quotes, symbol == c("SIE.DE","CBK.DE"))
-#t = subset(Quotes, date == "2007-01-02")
-#########
 
 Quotes_annual_returns <- Quotes %>%
     group_by(symbol) %>%

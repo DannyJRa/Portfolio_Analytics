@@ -201,7 +201,8 @@ server <- function(input, output,session) {
     callModule(tableTest, "test")
 
     output$tbl = DT::renderDataTable(
-      iris, options = list(lengthChange = FALSE)
+      #iris, options = list(lengthChange = FALSE)
+      Quotes_by_qtr
       )
     ########
     ##

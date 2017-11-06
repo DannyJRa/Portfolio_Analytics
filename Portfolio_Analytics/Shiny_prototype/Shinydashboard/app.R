@@ -203,6 +203,16 @@ server <- function(input, output,session) {
     output$tbl = DT::renderDataTable(
       iris, options = list(lengthChange = FALSE)
       )
+    ########
+    ##
+    ######
+    source("Portfolio_Scenarios/SingleAssets.R")
+    output$plot3 <- renderPlot({
+    plot3
+    })
+
+
+
 
     #Automatically stop a Shiny app when closing the browser tab
     session$onSessionEnded(stopApp)

@@ -188,5 +188,124 @@ Quotes_macd %>%
     geom_line(aes(y = SMA, col = symbol))
 
 
+#Example 5: Use xts apply.quarterly to Get the Max and Min Price for Each Quarter
+
+
+Quotes_max_by_qtr <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select = adjusted,
+                 mutate_fun = apply.quarterly,
+                 FUN = max,
+                 col_rename = "max.close") %>%
+                 mutate(year.qtr = paste0(year(date), "-Q", quarter(date))) %>%
+                 select(-date)
+FANG_max_by_qtr
+
+#The minimum each quarter can be retrieved in much the same way. The data frames can be joined using left_join to get the max and min by quarter.
+
+Quotes_min_by_qtr <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select = adjusted,
+                 mutate_fun = apply.quarterly,
+                 FUN = min,
+                 col_rename = "min.close") %>%
+                 mutate(year.qtr = paste0(year(date), "-Q", quarter(date))) %>%
+                 select(-date)
+
+Quotes_by_qtr <- left_join(Quotes_max_by_qtr, FANG_min_by_qtr,
+                         by = c("symbol" = "symbol",
+                                "year.qtr" = "year.qtr"))
+Quotes_by_qtr
+
+
+Quotes_by_qtr %>%
+    ggplot(aes(x = year.qtr, color = symbol)) +
+    geom_segment(aes(xend = year.qtr, y = min.close, yend = max.close),
+                 size = 1) +
+                 geom_point(aes(y = max.close), size = 2) +
+                 geom_point(aes(y = min.close), size = 2) +
+                 facet_wrap(~symbol, ncol = 2, scale = "free_y") +
+                 labs(title = "FANG: Min/Max Price By Quarter",
+         y = "Stock Price", color = "") +
+         theme_tq() +
+         scale_color_tq() +
+         scale_y_continuous(labels = scales::dollar) +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          axis.title.x = element_blank())
+
+
+
+#Example 6: Use zoo rollapply to visualize a rolling regression
+
+
+Quotes2pairs <- subset(Quotes, symbol == "SIE.DE" | symbol == "CBK.DE" )
+
+
+#not working
+#stock_pairs <- Quotes2pairs %>%
+stock_prices <- c("SIE.DE", "CBK.DE") %>%
+    tq_get(get = "stock.prices",
+           from = "2015-01-01",
+           to = "2016-12-31") %>%
+           group_by(symbol)
+
+stock_pairs <- stock_prices %>%
+    tq_transmute(select = adjusted,
+                 mutate_fun = periodReturn,
+                 period = "daily",
+                 type = "log",
+                 col_rename = "returns") %>%
+                 spread(key = symbol, value = returns)
+
+stock_pairs %>%
+    ggplot(aes(x = SIE.DE, y = CBK.DE)) +
+    geom_point(color = palette_light()[[1]], alpha = 0.5) +
+    geom_smooth(method = "lm") +
+    labs(title = "Visualizing Returns Relationship of Stock Pairs") +
+    theme_tq()
+
+
+lm(MA ~ V, data = stock_pairs) %>%
+    summary()
+
+
+#While this characterizes the overall relationship, it ’s missing the time aspect. Fortunately, we can use the rollapply function from the zoo package to plot a rolling regression, showing how the model coefficent varies on a rolling basis over time. We calculate rolling regressions with tq_mutate() in two additional steps:
+#    Create a custom function
+#Apply the function with tq_mutate(mutate_fun = rollapply)
+
+regr_fun <- function(data) {
+    coef(lm(MA ~ V, data = timetk::tk_tbl(data, silent = TRUE)))
+}
+
+
+stock_pairs <- stock_pairs %>%
+         tq_mutate(mutate_fun = rollapply,
+                   width = 90,
+                   FUN = regr_fun,
+                   by.column = FALSE,
+                   col_rename = c("coef.0", "coef.1"))
+stock_pairs
+
+stock_pairs %>%
+    ggplot(aes(x = date, y = coef.1)) +
+    geom_line(size = 1, color = palette_light()[[1]]) +
+    geom_hline(yintercept = 0.8134, size = 1, color = palette_light()[[2]]) +
+    labs(title = "MA ~ V: Visualizing Rolling Regression Coefficient", x = "") +
+    theme_tq()
+
+
+stock_prices %>%
+    tq_transmute(adjusted,
+                 periodReturn,
+                 period = "daily",
+                 type = "log",
+                 col_rename = "returns") %>%
+                 mutate(wealth.index = 100 * cumprod(1 + returns)) %>%
+                 ggplot(aes(x = date, y = wealth.index, color = symbol)) +
+                 geom_line(size = 1) +
+                 labs(title = "MA and V: Stock Prices") +
+                 theme_tq() +
+                 scale_color_tq()
+
 
 

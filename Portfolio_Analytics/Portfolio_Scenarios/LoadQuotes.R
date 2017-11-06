@@ -1,6 +1,3 @@
-# Using csv input
-tq_transmute_fun_options()$TTR
-
 library(tidyquant)
 library(ggplot2)
 data(FANG)

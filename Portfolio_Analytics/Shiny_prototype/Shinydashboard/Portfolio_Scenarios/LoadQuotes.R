@@ -15,7 +15,7 @@ Quotes <- fread("C:/OneDrive/PowerBI_test/Portfolio_Slicer/Input/Quotes_detail.c
 Quotes$date = as.Date(Quotes$date)
 
 #Quotes=as.data.frame(Quotes)
-Quotes <- subset(Quotes, symbol == "SIE.DE" | symbol == "CBK.DE" | symbol == "BAYN.DE")
+Quotes <- subset(Quotes, symbol == "SIE.DE" | symbol == "CBK.DE" | symbol == "2PP.F")
 
 
 
@@ -39,7 +39,7 @@ ticker <- c("GDAXI","SSMI","BIO.DE","ZIL2.DE",
 #AllocationCurrent = read.csv("AllocationCurrent.csv", sep="")
 
 #(ticker <- as.vector(AllocationCurrent$Symbol))
-ticker <- c("SIE.DE", "CBK.DE", "BAYN.DE")
+ticker <- c("SIE.DE", "CBK.DE", "2PP.F")
 
 
 setwd(currentPath)

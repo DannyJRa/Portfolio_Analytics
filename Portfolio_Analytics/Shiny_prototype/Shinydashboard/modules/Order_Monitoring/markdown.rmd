@@ -8,7 +8,10 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **R Tools | Publish | Preview** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-summary(cars)
+OrderType="TSL"
+OrderDate="2017-11-03"
+OrderFeature1=64
+OrderFeatures2= 0.08
 ```
 
 You can also embed plots, for example:
@@ -27,10 +30,22 @@ library(dplyr)
 library(plotly)
 #QuotesDF = as.data.frame(Quotes)
 #Quotes$date=as.Date(Quotes$date)
-df_plotx <- filter(Quotes, symbol == "2PP.F",date>="2017-01-01")
+df_plotx <- filter(Quotes, symbol == "2PP.F",date>="2017-11-01")
 
 tail(df_plotx)
 
+```
+
+```{r}
+
+trigger = OrderFeature1
+    
+(triggerDate=df_plotx$date[which(df_plotx$high > trigger)])
+
+```
+
+
+```{r}
 #######################3
 # cutom colors
 i <- list(line = list(color = '#FFD700'))
@@ -39,7 +54,7 @@ d <- list(line = list(color = '#0000ff'))
 
 # annotation
 a <- list(text = "Stock Split",
-          x = '2017-06-06',
+          x = '2017-11-03',
           y = 1.02,
           xref = 'x',
           yref = 'paper',
@@ -49,8 +64,8 @@ a <- list(text = "Stock Split",
 
 # use shapes to create a line
 l <- list(type = line,
-          x0 = '2017-06-06',
-          x1 = '2017-06-06',
+          x0 = '2017-11-03',
+          x1 = '2017-11-03',
           y0 = 0,
           y1 = 1,
           xref = 'x',
@@ -92,15 +107,6 @@ htmlwidgets::saveWidget(p, file = "image.html")
 ```
 
 ```{r}
-
-trigger=52
-    
-triggerDate=df_plotx$date[which(df_plotx$high > trigger)]
-
-```
-
-
-```{r}
 ##Source Telegram API
 source("R:/7_DataScience/01_R/11_Telegram/telegram_botDR.R")
 
@@ -114,6 +120,7 @@ text = paste("Order executed on", triggerDate)
 
 bot$sendMessage(text)
 bot$sendPhoto('image.jpeg', caption = 'This is my awesome graph')
+bot$sendPhoto('image.html', caption = 'This is my awesome graph')
 ```
 
 

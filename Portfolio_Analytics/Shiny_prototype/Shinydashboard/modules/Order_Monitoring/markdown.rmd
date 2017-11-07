@@ -14,7 +14,7 @@ summary(cars)
 You can also embed plots, for example:
 
 ```{r, echo=FALSE}
-library(plotly)
+
 library(quantmod)
 
 #getSymbols("AAPL", src = 'yahoo')
@@ -24,6 +24,7 @@ library(quantmod)
 
 
 library(dplyr)
+library(plotly)
 #QuotesDF = as.data.frame(Quotes)
 #Quotes$date=as.Date(Quotes$date)
 df_plotx <- filter(Quotes, symbol == "2PP.F",date>="2017-01-01")
@@ -73,15 +74,47 @@ p <- df_plotx %>%
 
 p
 
+
+
+################
+#Save plotly:
+
+### PhantomJS needed
+### webshot needed
+export(p, file = "image.jpeg")
+#You can even change the file type of output by selecting the extension as .png, jpeg or .pdf.
+#You can also save the image in html file which allows you the plotly experience like zooming or showing annotations by using htmlwidgets::saveWidget:
+
+
+htmlwidgets::saveWidget(p, file = "image.html")
+
+
 ```
 
 ```{r}
 
 trigger=52
-
-df_plotx$high > trigger
-which(df_plotx$high > trigger)
-df_plotx$date[146]
+    
+triggerDate=df_plotx$date[which(df_plotx$high > trigger)]
 
 ```
+
+
+```{r}
+##Source Telegram API
+source("R:/7_DataScience/01_R/11_Telegram/telegram_botDR.R")
+
+## Create Message
+############
+text = paste("Order executed on", triggerDate)
+############
+
+
+## Send some messages..
+
+bot$sendMessage(text)
+bot$sendPhoto('image.jpeg', caption = 'This is my awesome graph')
+```
+
+
 

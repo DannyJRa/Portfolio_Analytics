@@ -101,7 +101,7 @@ dashboardBody(
             box(
   title = "Histogram", status = "primary", solidHeader = TRUE,
   collapsible = TRUE,
-  plotOutput("plot3", height = 250)
+  plotOutput("byQuarter", height = 250)
 ),
 
 box(
@@ -109,6 +109,18 @@ box(
   "Box content here", br(), "More box content",
   sliderInput("slider", "Slider input:", 1, 100, 50),
   textInput("text", "Text input:")
+),
+
+################# Input symbol
+box(
+  title = "Inputs2", status = "warning", solidHeader = TRUE,
+  selectInput("symbol", "Symbol:", 
+              choices=ticker),
+  hr(),
+  helpText("Data from AT&T (1961) The World's Telephones.")
+  
+  
+  
 )
 
 )
@@ -125,12 +137,12 @@ box(
         # The id lets us use input$tabset1 on the server to find the current tab
         id = "tabset1", height = "250px",
         tabPanel("Tab1", "First tab content"),
-        tabPanel("Tab2", "Tab content 2")
+        tabPanel("Tab2", plotOutput("byQuarterAll", height = 250))
         ),
         tabBox(
         side = "right", height = "250px",
         selected = "Tab3",
-        tabPanel("Tab1", "Tab content 1"),
+        tabPanel("Tab1", tableOutput('tbl2')),
         tabPanel("Tab2", "Tab content 2"),
         tabPanel("Tab3", "Note that when side=right, the tab order is reversed.")
         )
@@ -172,7 +184,9 @@ tabItem(tabName = "GDP",
 server <- function(input, output,session) {
 
 
-
+    output$tbl2 <- renderTable({
+                head(rock, n = 6) },
+                 digits = 2)
 
 
 
@@ -200,6 +214,9 @@ server <- function(input, output,session) {
     callModule(gapModule, "oceania", oceania_data)
     callModule(tableTest, "test")
 
+    
+    
+    
     output$tbl = DT::renderDataTable(
       #iris, options = list(lengthChange = FALSE)
       Quotes_by_qtr
@@ -211,10 +228,18 @@ server <- function(input, output,session) {
     output$plot3 <- renderPlot({
     plot3
     })
-
-
-
-
+    #########
+    #### Plot
+    ##################################################################################
+    output$byQuarter <- renderPlot({
+      source("Portfolio_Scenarios/plot_SymbolbyQuarter.R",local=T)
+      byQuarter
+    })
+    ###################################################################################
+    output$byQuarterAll <- renderPlot({
+      byQuarterAll
+    })
+    
     #Automatically stop a Shiny app when closing the browser tab
     session$onSessionEnded(stopApp)
 }

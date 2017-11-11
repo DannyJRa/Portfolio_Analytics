@@ -8,11 +8,9 @@ currentPath=getwd()
 setwd("C:/OneDrive/PowerBI_test/Portfolio_Slicer/Input")
 
 library(data.table)
-
-
 Quotes <- fread("C:/OneDrive/PowerBI_test/Portfolio_Slicer/Input/Quotes_detail.csv")
-
 Quotes$date = as.Date(Quotes$date)
+
 
 #Quotes=as.data.frame(Quotes)
 Quotes <- subset(Quotes, symbol == "SIE.DE" | symbol == "CBK.DE" | symbol == "2PP.F")

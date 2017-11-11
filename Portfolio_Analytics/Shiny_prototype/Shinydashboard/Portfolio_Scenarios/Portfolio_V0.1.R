@@ -98,7 +98,11 @@ RaRb_multiple_portfolio %>%
                    Rf              = 0.03 / 12)
 
 
-
+RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra,
+                   performance_fun = SharpeRatio,
+                   Rf = 0.03 / 12,
+                   p = 0.99)
 
 
 
@@ -197,3 +201,6 @@ portfolio_growth_monthly_multi %>%
          theme_tq() +
          scale_color_tq() +
          scale_y_continuous(labels = scales::dollar)
+
+
+

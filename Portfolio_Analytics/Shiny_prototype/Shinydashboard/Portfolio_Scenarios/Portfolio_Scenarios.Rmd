@@ -390,24 +390,6 @@ RaRb_multiple_portfolio <- left_join(portfolio_returns_monthly_multi,
 RaRb_multiple_portfolio
 
 
-P_CAPM=RaRb_multiple_portfolio %>%
-    tq_performance(Ra = Ra, Rb = Rb, performance_fun = table.CAPM)
-
-
-P_SR=RaRb_multiple_portfolio %>%
-    tq_performance(Ra = Ra, Rb = NULL, performance_fun = SharpeRatio)
-
-P_VaR <- RaRb_multiple_portfolio %>%
-    tq_performance(Ra = Ra, Rb = NULL, performance_fun = VaR)
-
-
-
-tq_performance_fun_options()
-
-P_Stats<-RaRb_multiple_portfolio %>%
-    tq_performance(Ra = Ra, Rb = NULL, performance_fun = table.Stats)
-
-
 
 
 
@@ -415,6 +397,48 @@ P_Stats<-RaRb_multiple_portfolio %>%
 
 
 ```
+
+```{r}
+library(tidyquant)
+P_CAPM=RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = Rb, performance_fun = table.CAPM)
+P_CAPM
+```
+
+
+
+
+```{r}
+P_SR=RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = NULL, performance_fun = SharpeRatio)
+
+P_VaR <- RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = NULL, performance_fun = VaR, portfolio_method="component")
+P_VaR
+
+
+#tq_performance_fun_options()
+
+P_Stats<-RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = NULL, performance_fun = table.Stats)
+
+data(managers)
+chart.VaRSensitivity(managers[,1,drop=FALSE],
+		methods=c("HistoricalVaR", "ModifiedVaR", "GaussianVaR"),
+		colorset=bluefocus, lwd=2)
+chart.VaRSensitivity(managers[,1,drop=FALSE],
+		methods=c("HistoricalVaR", "ModifiedVaR", "GaussianVaR"),
+		colorset=bluefocus, lwd=2)
+
+```
+
+
+VaR(R, p = 0.95, method = c("modified", "gaussian","historical", "kernel"),
+           clean = c("none", "boudt", "geltner"),
+                 portfolio_method = c("single", "component","marginal"),
+                 weights = NULL, mu = NULL, sigma = NULL,
+                 m3 = NULL, m4 = NULL, invert = TRUE, ...)
+
 
 ## Customizing tq_performance
 

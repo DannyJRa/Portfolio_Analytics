@@ -45,7 +45,7 @@ Quotes$date = as.Date(Quotes$date)
 
 
 #Quotes=as.data.frame(Quotes)
-Quotes <- subset(Quotes, symbol == "SIE.DE" | symbol == "CBK.DE" | symbol == "2PP.F")
+Quotes <- subset(Quotes, symbol == "SIE.DE" | symbol == "CBK.DE" | symbol == "2PP.F"| symbol == "BAYN.DE"| symbol == "FTK.DE")
 
 
 
@@ -321,24 +321,166 @@ byQuarterAll
 ## Portfolio
 
 
+
+
+
+```{r, eval=FALSE, include=FALSE}
+weights <- c(
+    0.50, 0.25, 0.25,
+     0.50, 0.4, 0.1,
+     1, 0, 0
+)
+stocks <- ticker[1:3]
+weights_table <-  tibble(stocks) %>%
+    tq_repeat_df(n = n) %>%
+    bind_cols(tibble(weights)) %>%
+    group_by(portfolio)
+weights_table
+```
+
+
+# New weights table
+
+```{r}
+#tidyverse
+library(readxl)
+xlsx_example <- read_excel("AllocationCurrent.xlsx")
+xlsx_example
+
+
+
+library(openxlsx)
+Sys.setenv(R_ZIPCMD = "C:/RBuildTools/3.4/bin/zip")
+
+#wb <- loadWorkbook(file = "OrderBook.xlsx")
+#writeData(wb, sheet = 1, x = iris, name = "iris3", startCol = 10)
+#Allocation <- read.xlsx("AllocationCurrent.xlsx", namedRegion = "Allocation", detectDates = T)
+library(tidyverse)
+Allocation <- read.xlsx("AllocationCurrent.xlsx", sheet = 1, startRow = 1, detectDates = T)
+Allocation<-Allocation %>%
+  group_by(portfolio) %>%
+    mutate(weights=Value/sum(Value))
+
+
+Allocation2 <- read.xlsx("AllocationCurrent.xlsx", sheet = 1, startRow = 1, detectDates = T)
+
+
+distStocks<-Allocation2 %>%
+ distinct(stocks)
+distStocks
+
+
+n = 3
+stocks <- distStocks[,1]
+weights_table <-  tibble(stocks) %>%
+    tq_repeat_df(n = n) %>%
+    group_by(portfolio) %>%
+    left_join(Allocation) %>%
+    replace_na(replace = list(Symbol_short="N/A",weights=0))
+    
+weights_table<-weights_table %>%
+  select(portfolio,stocks,weights)
+
+weights_table
+
+
+
+
+```
+
+#Check missing ticker
+```{r}
+
+distStocks<-distStocks%>%
+ rename(symbol=stocks)
+
+distStocksAV<-Quotes %>%
+ distinct(symbol)
+distStocksAV
+
+Ticker<-distStocks %>%
+  anti_join(distStocksAV) 
+  
+
+
+```
+
+
+## Get intraday data from Alpha Vantage
+
+```{r}
+Quotes_complete=Quotes
+## Source Telegram API
+source("R:/7_DataScience/01_R/12_AlphaVantage/alpha_key.R")
+## Get data 
+for (i in 1:nrow(Ticker)){
+
+S=Ticker[,1][i]
+#S="MFST"
+QuoteAV<- av_get(symbol = S, av_fun = "TIME_SERIES_DAILY", outputsize = "full")
+QuoteAV<- QuoteAV %>%
+  mutate(symbol=S)
+
+
+names(QuoteAV)[1]<-"date"
+
+
+Quotes_complete<- Quotes_complete %>%
+  bind_rows(QuoteAV)
+}
+  
+```
+
+
+```{r}
+Quotes_returns_monthly_complete <- Quotes_complete %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = close, 
+                 mutate_fun = periodReturn,
+                 period = "monthly",
+                 col_rename = "Ra")
+```
+
+
+#Last day of month
+```{r}
+library(lubridate)
+
+data=Quotes_returns_monthly_complete
+data$date2 <- ymd(data$date)
+data$DATE_Month_End <- paste(format(data$date, format="%y-%m"),"-", days_in_month(data$date), sep="")
+#OR
+last_day <- function(date) {
+  ceiling_date(date, "month") - days(1)
+}
+
+
+data2<-data %>%
+  mutate(test=last_day(date))%>%
+  select(symbol,test,Ra)
+
+test2=spread(data2, symbol, Ra)
+```
+
+
 ```{r}
 # Single Portfolio depending on n
 #https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ05-performance-analysis-with-tidyquant.html
 
-n = 3
+ticker=distStocks
 
-stock_returns_monthly <- ticker %>%
-    tq_get(get  = "stock.prices",
-           from = "2010-01-01",
-           to   = "2015-12-31") %>%
-           group_by(symbol) %>%
-           tq_transmute(select     = adjusted, 
-                 mutate_fun = periodReturn, 
-                 period     = "monthly", 
-                 col_rename = "Ra")
+#stock_returns_monthly <- ticker %>%
+#    tq_get(get  = "stock.prices",
+#           from = "2010-01-01",
+#           to   = "2015-12-31") %>%
+#           group_by(symbol) %>%
+#           tq_transmute(select     = adjusted, 
+#                 mutate_fun = periodReturn, 
+#                 period     = "monthly", 
+#                 col_rename = "Ra")
 
 #replace
-stock_returns_monthly=Quotes_returns_monthly
+stock_returns_monthly=Quotes_returns_monthly_complete
 
 
 
@@ -362,19 +504,12 @@ stock_returns_monthly_multi <- stock_returns_monthly %>%
 stock_returns_monthly_multi
 
 
-weights <- c(
-    0.50, 0.25, 0.25,
-     0.50, 0.4, 0.1,
-     1, 0, 0
-)
-stocks <- ticker[1:3]
-weights_table <-  tibble(stocks) %>%
-    tq_repeat_df(n = n) %>%
-    bind_cols(tibble(weights)) %>%
-    group_by(portfolio)
-weights_table
 
 
+```
+
+```{r}
+#Erros massage when not all assets available
 portfolio_returns_monthly_multi <- stock_returns_monthly_multi %>%
     tq_portfolio(assets_col  = symbol, 
                  returns_col = Ra, 
@@ -392,7 +527,7 @@ RaRb_multiple_portfolio
 
 
 
-
+RaRb_multiple_portfolio <- na.omit(RaRb_multiple_portfolio)
 
 
 
@@ -423,9 +558,6 @@ P_Stats<-RaRb_multiple_portfolio %>%
     tq_performance(Ra = Ra, Rb = NULL, performance_fun = table.Stats)
 
 data(managers)
-chart.VaRSensitivity(managers[,1,drop=FALSE],
-		methods=c("HistoricalVaR", "ModifiedVaR", "GaussianVaR"),
-		colorset=bluefocus, lwd=2)
 chart.VaRSensitivity(managers[,1,drop=FALSE],
 		methods=c("HistoricalVaR", "ModifiedVaR", "GaussianVaR"),
 		colorset=bluefocus, lwd=2)
@@ -579,3 +711,9 @@ portfolio_growth_monthly_multi %>%
 ```{r}
 tq_performance_fun_options()
 ```
+
+
+
+
+
+

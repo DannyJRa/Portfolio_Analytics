@@ -1,3 +1,4 @@
+ # oad quotes
 library(tidyquant)
 library(ggplot2)
 data(FANG)

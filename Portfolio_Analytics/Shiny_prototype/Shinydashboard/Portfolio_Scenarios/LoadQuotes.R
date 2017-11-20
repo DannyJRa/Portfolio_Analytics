@@ -1,4 +1,4 @@
- # oad quotes
+ # Load quotes test
 library(tidyquant)
 library(ggplot2)
 data(FANG)

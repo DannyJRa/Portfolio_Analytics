@@ -1,8 +1,8 @@
 source("global.R")
 
 Logged = FALSE
-my_username <- "test"
-my_password <- "test"
+my_username <- ""
+my_password <- ""
 
 
 ui <- dashboardPage(skin = "blue",
@@ -12,9 +12,7 @@ ui <- dashboardPage(skin = "blue",
   title = "My Dashboard",
   titleWidth = 350,
 
-
-
-      ## Message menus (static)
+## Message menus (static)
       dropdownMenu(type = "messages",
         messageItem(
         from = "Sales Dept",
@@ -33,7 +31,8 @@ ui <- dashboardPage(skin = "blue",
         time = "2014-12-01"
         )
         )
-      ##
+      # Test ##############
+      
        ,
       dropdownMenu(type = "notifications",
           notificationItem(
@@ -56,7 +55,7 @@ ui <- dashboardPage(skin = "blue",
         ,
 
 
-        ### Task menu
+##### Task menu ###########
         dropdownMenu(type = "tasks", badgeStatus = "success",
           taskItem(value = 90, color = "green",
             "Documentation"
@@ -71,105 +70,101 @@ ui <- dashboardPage(skin = "blue",
             "Overall project"
           )
         )
-        ###########3
-        ########3
-    
+#########
+
   ),
 
-    ## Sidebar content
+## Sidebar content
     sidebar,
 
   ## Body content
 dashboardBody(
     tabItems(
-      
-      tabItem(tabName = "login", verbatimTextOutput("dataInfo")),
+# Login tab
+      tabItem(tabName = "login",
+         verbatimTextOutput("dataInfo")),
       
 # First tab content
       tabItem(tabName = "dashboard",
         fluidRow(
-
-
-          box(plotOutput("plot1", height = 250)),
-
+          box(
+            plotOutput("plot1", height = 250)),
 
           box(
             "Box content here", br(), "More box content",
+            #Slider Input
             sliderInput("slider", "Slider input:", 1, 100, 50),
+            #Text Input
             textInput("text", "Text input:")
-            )
-
-            ,
-
-            fluidRow(
-
+            ),
+         #### # Second Row
+         fluidRow(
             box(
-  title = "Histogram", status = "primary", solidHeader = TRUE,
-  collapsible = TRUE,
-  plotOutput("byQuarter", height = 250)
-),
+                title = "Histogram", status = "primary", solidHeader = TRUE,
+                collapsible = TRUE,
+                plotOutput("byQuarter", height = 250)
+            ),
+            box(
+                title = "Inputs", status = "warning", solidHeader = TRUE,
+                "Box content here", br(), "More box content",
+                sliderInput("slider", "Slider input:", 1, 100, 50),
+                textInput("text", "Text input:")
+        ),
 
-box(
-  title = "Inputs", status = "warning", solidHeader = TRUE,
-  "Box content here", br(), "More box content",
-  sliderInput("slider", "Slider input:", 1, 100, 50),
-  textInput("text", "Text input:")
-),
-
-################# Input symbol
-box(
-  title = "Inputs2", status = "warning", solidHeader = TRUE,
-  selectInput("symbol", "Symbol:", 
+        ################# Input symbol
+        box(
+            title = "Inputs2", status = "warning", solidHeader = TRUE,
+            selectInput("symbol", "Symbol:", 
               choices=ticker),
-  hr(),
-  helpText("Data from AT&T (1961) The World's Telephones.")
-  
-  
-  
-)
+            hr(),
+            helpText("Data from AT&T (1961) The World's Telephones.")
+        )
 
-)
+        )
 
 
         )
       ),
 
-# Second tab content
+# Second tab content #########
       tabItem(tabName = "widgets",
         fluidRow(
+          tabBox(
+          title = "First tabBox",
+          # The id lets us use input$tabset1 on the server to find the current tab
+          id = "tabset1", height = "250px",
+            tabPanel("Tab1", "First tab content"),
+            tabPanel("Tab2", plotOutput("byQuarterAll", height = 250))
+          ),
         tabBox(
-        title = "First tabBox",
-        # The id lets us use input$tabset1 on the server to find the current tab
-        id = "tabset1", height = "250px",
-        tabPanel("Tab1", "First tab content"),
-        tabPanel("Tab2", plotOutput("byQuarterAll", height = 250))
-        ),
-        tabBox(
-        side = "right", height = "250px",
-        selected = "Tab3",
-        tabPanel("Tab1", tableOutput('tbl2')),
-        tabPanel("Tab2", "Tab content 2"),
-        tabPanel("Tab3", "Note that when side=right, the tab order is reversed.")
+          side = "right", height = "250px",
+          selected = "Tab3",
+          tabPanel("Tab1", tableOutput('tbl2')),
+          tabPanel("Tab2", "Tab content 2"),
+          tabPanel("Tab3", "Note that when side=right, the tab order is reversed.")
         )
         ),
+        
+        
         fluidRow(
-        tabBox(
-        # Title can include an icon
-        title = tagList(shiny::icon("gear"), "tabBox status"),
-        tabPanel("Tab1",
-        "Currently selected tab from first box:",
-        verbatimTextOutput("tabset1Selected")
-        ),
-        tabPanel("Tab2", "Tab content 2")
-        )
+          tabBox(
+          # Title can include an icon
+          title = tagList(shiny::icon("gear"), "tabBox status"),
+            tabPanel("Tab1",
+            "Currently selected tab from first box:",
+            verbatimTextOutput("tabset1Selected")
+            ),
+            tabPanel("Tab2", "Tab content 2")
+          )
         )
       ),
-
+##############
 
       # GDP tab content
-tabItem(tabName = "GDP",
+      tabItem(tabName = "GDP",
+              
         tabsetPanel(id = "continent",
-        tabPanel("Test"),
+            tabPanel("Test"),
             tabPanel("Asia", gapModuleUI("asia")),
             tabPanel("Europe", tableTestUI("test")),
             tabPanel("Oceania", DT::dataTableOutput("tbl"))#,
@@ -186,9 +181,14 @@ tabItem(tabName = "GDP",
 )
 )
 
+################ #
+######### SERVER #############################
+###################### #
+
+
 server <- function(input, output,session) {
 
-  ##### Password
+  ##### Password ###########
   
   values <- reactiveValues(authenticated = FALSE)
   
@@ -204,6 +204,9 @@ server <- function(input, output,session) {
       )
     )
   }
+  
+  
+
   
   # Show modal when button is clicked.  
   # This `observe` is suspended only whith right user credential
@@ -245,14 +248,14 @@ server <- function(input, output,session) {
   
   
   
-  
+###### tbl2 #############  
   
     output$tbl2 <- renderTable({
                 head(rock, n = 6) },
                  digits = 2)
 
 
-
+########## Dynamic Menu Item #############
     ##menu item
     output$menuitem <- renderMenu({
     menuItem("Menu item", icon = icon("calendar"))
@@ -262,7 +265,7 @@ server <- function(input, output,session) {
 
 
 
-
+######## plot 1 ############
     set.seed(122)
     histdata <- rnorm(500)
 
@@ -271,51 +274,48 @@ server <- function(input, output,session) {
     hist(data)
      })
 
-
+###### Include Modules ###############
     callModule(gapModule, "asia", asia_data)
     callModule(gapModule, "europe", europe_data)
     callModule(gapModule, "oceania", oceania_data)
     callModule(tableTest, "test")
 
     
-    
+####### tbl ###############    
     
     output$tbl = DT::renderDataTable(
       #iris, options = list(lengthChange = FALSE)
       Quotes_by_qtr
       )
-    ########
-    ##
-    ######
+
+    
+######## plot 3 ############    
+    
     source("Portfolio_Scenarios/SingleAssets.R")
+    
     output$plot3 <- renderPlot({
     plot3
     })
-    #########
-    #### Plot
-    ##################################################################################
+
+#### byQuarter ###########
     output$byQuarter <- renderPlot({
       source("Portfolio_Scenarios/plot_SymbolbyQuarter.R",local=T)
       byQuarter
     })
-    ###################################################################################
-    output$byQuarterAll <- renderPlot({
+
+##### byQuarterAll #########    
+        output$byQuarterAll <- renderPlot({
       byQuarterAll
     })
-    
-    
-    
-    
-    
 
     
     
-    
+        
+
+####### Shiny Options #################    
     
     #Automatically stop a Shiny app when closing the browser tab
     session$onSessionEnded(stopApp)
 }
-
-
 
 shinyApp(ui, server)

@@ -108,7 +108,13 @@ shinyUI(
                    label    = "Download Plot")
         )
 
+        ,
         
+        tabPanel("RMarkdown",
+                 
+                 uiOutput('markdown')
+                 
+        )
       )
     )
       )

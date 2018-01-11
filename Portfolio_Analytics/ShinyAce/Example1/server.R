@@ -3,6 +3,7 @@
 library(ggplot2)
 library(shiny)
 library(shinyAce)
+library(knitr)
 
 # Keep track of data with these entries for each upload:
 # 1. Name (filename with .csv stripped)
@@ -132,7 +133,15 @@ shinyServer(
     output$plot <- renderPlot({
       print(plotObject())
     })
-    
+
+
+
+      ########33
+
+      output$markdown <- renderUI({
+    HTML(markdown::markdownToHTML(knit('slides.rmd', quiet = TRUE)))
+})
+
     #####
     # Download tab
     #####

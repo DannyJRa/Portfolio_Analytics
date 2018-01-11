@@ -1,4 +1,5 @@
-# Load necessary libraries.
+# Original Source: https://github.com/mdec/ggplotLive
+# Load libraries.
 library(ggplot2)
 library(shiny)
 library(shinyAce)
@@ -9,7 +10,7 @@ library(shinyAce)
 # 3. Data
 dataList <- list()    
 
-# All server code must be within shinyServer()
+
 shinyServer(
   # Function takes input as a list from ui.R, and returns output as a list
   # of objects computed based on input list.

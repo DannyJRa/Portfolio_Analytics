@@ -3,7 +3,7 @@ library(datasets)
 library(shiny)
 library(shinyAce)
 
-# All UI elements must be inside shinyUI()
+
 shinyUI(
   
   pageWithSidebar(
@@ -34,10 +34,11 @@ shinyUI(
                    p()
                  )
         )
-      ),
-      div(HTML("<br>This app was created by Mason DeCamillis.
-               <br>Code available at <a href='https://github.com/mdec/ggplotLive' target='_blank'>https://github.com/mdec/ggplotLive</a>.
-               <br>See more at <a href='http://www.showmeshiny.com' target='_blank'>showmeshiny.com</a> and follow <a href='http://www.twitter.com/showmeshiny' target='_blank'>@showmeshiny</a>."))
+      )
+
+      ##### #######
+      ,div(HTML("Text"))
+      ##############
       ),
     
     mainPanel(
@@ -105,25 +106,9 @@ shinyUI(
                  downloadButton(
                    outputId = "downloadPlot", 
                    label    = "Download Plot")
-        ),
-        
-        tabPanel("Debug",
-                 
-                 HTML(
-                   "<h5>Resources for ggplot2 development:</h5>
-                    <a href='http://docs.ggplot2.org/current/' target='_blank'>Current ggplot2 Docs</a>
-                    <br>
-                    <a href='http://stackoverflow.com/questions/tagged/ggplot2' target='_blank'>StackOverflow</a>
-                    <br>
-                    <a href='http://www.cookbook-r.com/Graphs/' target='_blank'>R Graphics Cookbook</a>")
-                 #selectInput("helpFunctionSelect",
-                 #    "Choose a function to see its arguments",
-                 #    as.list(ls("package:ggplot2"))
-                 #),
-                 
-                 #uiOutput("helpFunctionFormals")
-                 
         )
+
+        
       )
     )
       )

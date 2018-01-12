@@ -1,5 +1,5 @@
 source("global.R")
-
+source("updatedScript.R")
 Logged = FALSE
 my_username <- ""
 my_password <- ""
@@ -164,11 +164,82 @@ dashboardBody(
       tabItem(tabName = "GDP",
               
         tabsetPanel(id = "continent",
-            tabPanel("Test"),
+            tabPanel("Test",print(b)),
             tabPanel("Asia", gapModuleUI("asia")),
             tabPanel("Europe", tableTestUI("test")),
-            tabPanel("Oceania", DT::dataTableOutput("tbl"))#,
-           # tabPanel("test", DT::dataTableOutput("tbl")),
+            tabPanel("Oceania", DT::dataTableOutput("tbl")),
+            tabPanel("Codeplot", CodePlotUI("codeplot")),
+            tabPanel("Codeplot2", CodePlotUI("codeplot2")),
+            tabPanel("NoModul",
+                     
+                     
+                     
+                     tabPanel("Knitr",
+                              
+                              ########      
+                              div(
+                                class="container-fluid",
+                                div(class="row-fluid",
+                                    div(class="span6",
+                                        h2("Source R-Markdown"),  
+                                        aceEditor("rmd", mode="markdown", value='### Sample knitr Doc
+
+This is some markdown text. It may also have embedded R code
+which will be executed.
+
+```{r}
+2*3
+rnorm(5)
+```
+
+It can even include graphical elements.
+
+```{r}
+hist(rnorm(100))
+```
+
+'),
+                                        actionButton("eval", "Update")
+                                    ),
+                                    div(class="span6",
+                                        h2("Knitted Output"),
+                                        htmlOutput("knitDoc")
+                                    )
+                                )
+                              )  )    
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     
+                     )
         )
         
       )
@@ -280,7 +351,7 @@ server <- function(input, output,session) {
     callModule(gapModule, "oceania", oceania_data)
     callModule(tableTest, "test")
     callModule(CodePlot, "codeplot")
-    
+    callModule(CodePlot, "codeplot2")
 ####### tbl ###############    
     
     output$tbl = DT::renderDataTable(
@@ -308,6 +379,23 @@ server <- function(input, output,session) {
       byQuarterAll
     })
 
+
+    
+    
+    
+    
+    
+    
+    ######
+    # RMarkdown Panel
+    #####
+    
+    output$knitDoc <- renderUI({
+      input$eval
+      #only updated within knitDoc
+      source("updatedScript.R",local=T)
+      return(isolate(HTML(knit2html(text = input$rmd, fragment.only = TRUE, quiet = TRUE))))
+    })  
     
     
         

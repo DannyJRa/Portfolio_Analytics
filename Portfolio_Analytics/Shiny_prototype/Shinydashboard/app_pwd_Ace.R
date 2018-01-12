@@ -167,8 +167,9 @@ dashboardBody(
             tabPanel("Test"),
             tabPanel("Asia", gapModuleUI("asia")),
             tabPanel("Europe", tableTestUI("test")),
-            tabPanel("Oceania", DT::dataTableOutput("tbl"))#,
-           # tabPanel("test", DT::dataTableOutput("tbl")),
+            tabPanel("Oceania", DT::dataTableOutput("tbl")),
+            tabPanel("Codeplot", CodePlotUI("codeplot")),
+            tabPanel("Codeplot2", CodePlotUI("codeplot2"))
         )
         
       )
@@ -280,7 +281,7 @@ server <- function(input, output,session) {
     callModule(gapModule, "oceania", oceania_data)
     callModule(tableTest, "test")
     callModule(CodePlot, "codeplot")
-    
+    callModule(CodePlot, "codeplot2")
 ####### tbl ###############    
     
     output$tbl = DT::renderDataTable(

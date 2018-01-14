@@ -3,7 +3,9 @@ dependencies <- c(
   "shiny",
   "shinydashboard",
   "ggplot2",
-  "dplyr"
+  "dplyr",
+  "ggedit",
+  "brew"
   )
 
 new.packages <- dependencies[!(dependencies %in% installed.packages()[,"Package"])]

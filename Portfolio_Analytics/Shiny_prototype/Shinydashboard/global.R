@@ -3,7 +3,7 @@ print("loading app...")
 source("global/dependencies.R")
 source("global/header.R")
 source("global/sidebar.R")
-source("Portfolio_Scenarios/LoadQuotes.R")
+source("global/LoadQuotes.R")
 ##source("Portfolio_Scenarios/SingleAssets.R")
 
 # utils functions

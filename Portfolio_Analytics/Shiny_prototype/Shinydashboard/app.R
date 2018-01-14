@@ -8,6 +8,17 @@ library(brew)
 p=ggplot(iris,aes(x =Sepal.Length,y=Sepal.Width))
 p=p+geom_point(mapping=aes(colour=Species),alpha=1)+geom_line()+
   scale_colour_manual(values=c('#2E1815','#008B45','#6495ED'))
+
+
+
+
+
+
+
+
+
+
+
 ui <- dashboardPage(skin = "blue",
                     
 ## Header
@@ -344,7 +355,7 @@ server <- function(input, output,session) {
     
 ######## plot 3 ############    
     
-    source("Portfolio_Scenarios/SingleAssets.R")
+    source("global/SingleAssets.R")
     
     output$plot3 <- renderPlot({
     plot3
@@ -352,7 +363,7 @@ server <- function(input, output,session) {
 
 #### byQuarter ###########
     output$byQuarter <- renderPlot({
-      source("Portfolio_Scenarios/plot_SymbolbyQuarter.R",local=T)
+      source("global/plot_SymbolbyQuarter.R",local=T)
       byQuarter
     })
 

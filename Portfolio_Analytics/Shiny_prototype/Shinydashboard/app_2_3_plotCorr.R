@@ -9,78 +9,14 @@ p=ggplot(iris,aes(x =Sepal.Length,y=Sepal.Width))
 p=p+geom_point(mapping=aes(colour=Species),alpha=1)+geom_line()+
   scale_colour_manual(values=c('#2E1815','#008B45','#6495ED'))
 ui <- dashboardPage(skin = "blue",
-
+                    
 ## Header
-  dashboardHeader(
-  title = "My Dashboard",
-  titleWidth = 350,
-
-## Message menus (static)
-      dropdownMenu(type = "messages",
-        messageItem(
-        from = "Sales Dept",
-        message = "Sales are steady this month."
-        ),
-        messageItem(
-        from = "New User",
-        message = "How do I register?",
-        icon = icon("question"),
-        time = "13:45"
-        ),
-        messageItem(
-        from = "Support",
-        message = "The new server is ready.",
-        icon = icon("life-ring"),
-        time = "2014-12-01"
-        )
-        )
-      # Test ##############
-      
-       ,
-      dropdownMenu(type = "notifications",
-          notificationItem(
-            text = "5 new users today",
-            icon("users")
-          ),
-          notificationItem(
-            text = "12 items delivered",
-            icon("truck"),
-            status = "success"
-          ),
-          notificationItem(
-            text = "Server load at 86%",
-            icon = icon("exclamation-triangle"),
-            status = "warning"
-          )
-        )
-
-        ##############
-        ,
-
-
-##### Task menu ###########
-        dropdownMenu(type = "tasks", badgeStatus = "success",
-          taskItem(value = 90, color = "green",
-            "Documentation"
-          ),
-          taskItem(value = 17, color = "aqua",
-            "Project X"
-          ),
-          taskItem(value = 75, color = "yellow",
-            "Server deployment"
-          ),
-          taskItem(value = 80, color = "red",
-            "Overall project"
-          )
-        )
-#########
-
-  ),
+header,
 
 ## Sidebar content
-    sidebar,
+sidebar,
 
-  ## Body content
+## Body content
 dashboardBody(
     tabItems(
 # Login tab
@@ -110,9 +46,19 @@ dashboardBody(
             box(
                 title = "Inputs", status = "warning", solidHeader = TRUE,
                 "Box content here", br(), "More box content",
-                sliderInput("slider", "Slider input:", 1, 100, 50),
-                textInput("text", "Text input:")
-        ),
+                sliderInput("slider2", "Slider input:", 1, 100, 50),
+                textInput("text2", "Text input:")
+            ),
+          fluidRow(
+                  box(
+                    title = "Histogram2", status = "primary", solidHeader = TRUE,
+                    collapsible = TRUE,
+                    plotOutput("plotRolling", height = 250)
+                  )      
+        
+          )       
+                
+        ,
 
         ################# Input symbol
         box(
@@ -120,12 +66,31 @@ dashboardBody(
             selectInput("symbol", "Symbol:", 
               choices=ticker),
             hr(),
-            helpText("Data from AT&T (1961) The World's Telephones.")
+            helpText("Data from AT&T (1961) The World's Telephones."
+                    
+                     )
         )
 
         )
 
 
+        )
+      ),
+
+      # First tab content
+      tabItem(tabName = "symbol",
+        fluidRow(
+          box(
+            plotOutput("plotMACD", height = 250))
+        ),
+        fluidRow(
+          # A static valueBox
+          valueBox(10 * 2, "New Orders", icon = icon("credit-card")),
+          
+          # Dynamic valueBoxes
+          valueBoxOutput("progressBox"),
+          
+          valueBoxOutput("approvalBox")
         )
       ),
 
@@ -237,8 +202,21 @@ dashboardBody(
 
     )
 
+  )
 )
-)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ################ #
 ######### SERVER #############################
@@ -324,14 +302,30 @@ server <- function(input, output,session) {
 
 
 
-######## plot 1 ############
+######## plot 1 ###################
     set.seed(122)
     histdata <- rnorm(500)
 
     output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
-     })
+      saveRDS(input$slider,"slider.rds")
+     source("plots/plot1.R",local=T) 
+    })
+    
+######## plot rolling correlation ###################
+
+    output$plotRolling <- renderPlot({
+      saveRDS(input$symbol,"symbol.rds")
+      source("plots/plot_rollingCorr.R",local=T) 
+      plot_rollingCorr
+    })
+    
+########## plot MACD
+    output$plotMACD <- renderPlot({
+
+      source("plots/plot_MACD.R",local=T) 
+      plot_MACD
+    })
+ 
 
 ###### Include Modules ###############
     callModule(gapModule, "asia", asia_data)
@@ -368,9 +362,20 @@ server <- function(input, output,session) {
     })
 
 
+############# info boxes
+    output$progressBox <- renderValueBox({
+      valueBox(
+        paste0(25 + input$slider, "%"), "Progress", icon = icon("list"),
+        color = "purple"
+      )
+    })
     
-    
-    
+    output$approvalBox <- renderValueBox({
+      valueBox(
+        "80%", "Approval", icon = icon("thumbs-up", lib = "glyphicon"),
+        color = "yellow"
+      )
+    })   
     
     
     

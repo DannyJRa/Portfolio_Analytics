@@ -126,45 +126,20 @@ Quotes_rolling_corr <- returns_joined %>%
                     col_rename = "rolling.corr.6")
 #And, we can plot the rolling correlations for the Quotes stocks.
 
-Quotes_rolling_corr %>%
-    ggplot(aes(x = date, y = rolling.corr.6, color = symbol)) +
-    geom_hline(yintercept = 0, color = palette_light()[[1]]) +
-    geom_line(size = 1) +
-    labs(title = "Quotes: Six Month Rolling Correlation to XLK",
-         x = "", y = "Correlation", color = "") +
-         facet_wrap(~ symbol, ncol = 2) +
-         theme_tq() + 
-         scale_color_tq()
+## already plot_RollingCorr
+#quotes_rolling_corr %>%
+    #ggplot(aes(x = date, y = rolling.corr.6, color = symbol)) +
+    #geom_hline(yintercept = 0, color = palette_light()[[1]]) +
+    #geom_line(size = 1) +
+    #labs(title = "quotes: six month rolling correlation to xlk",
+         #x = "", y = "correlation", color = "") +
+         #facet_wrap(~symbol, ncol = 2) +
+         #theme_tq() +
+         #scale_color_tq()
 
 Quotes <- na.omit(Quotes)
 
-##Example 4: Use TTR MACD to Visualize Moving Average Convergence Divergence
 
-Quotes_macd <- Quotes %>%
-    group_by(symbol) %>%
-    tq_mutate(select     = close, 
-              mutate_fun = MACD, 
-              nFast      = 12, 
-              nSlow      = 26, 
-              nSig       = 9, 
-              maType     = SMA) %>%
-              mutate(diff = macd - signal) %>%
-              select(-(open:volume))
-Quotes_macd
-#And, we can visualize the data like so.
-
-Quotes_macd %>%
-    filter(date >= as_date("2016-10-01")) %>%
-    ggplot(aes(x = date)) + 
-    geom_hline(yintercept = 0, color = palette_light()[[1]]) +
-    geom_line(aes(y = macd, col = symbol)) +
-    geom_line(aes(y = signal), color = "blue", linetype = 2) +
-    geom_bar(aes(y = diff), stat = "identity", color = palette_light()[[1]]) +
-    facet_wrap(~ symbol, ncol = 2, scale = "free_y") +
-    labs(title = "Quotes: Moving Average Convergence Divergence",
-         y = "MACD", x = "", color = "") +
-         theme_tq() +
-         scale_color_tq()
 
 
 

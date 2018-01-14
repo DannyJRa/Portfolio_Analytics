@@ -4,6 +4,7 @@ Logged = FALSE
 my_username <- ""
 my_password <- ""
 library(ggedit)
+library(brew)
 p=ggplot(iris,aes(x =Sepal.Length,y=Sepal.Width))
 p=p+geom_point(mapping=aes(colour=Species),alpha=1)+geom_line()+
   scale_colour_manual(values=c('#2E1815','#008B45','#6495ED'))
@@ -109,7 +110,7 @@ dashboardBody(
             box(
                 title = "Inputs", status = "warning", solidHeader = TRUE,
                 "Box content here", br(), "More box content",
-                sliderInput("slider", "Slider input:", 1, 100, 50),
+                sliderInput("slider2", "Slider input:", 1, 100, 50),
                 textInput("text", "Text input:")
         ),
 
@@ -323,14 +324,18 @@ server <- function(input, output,session) {
 
 
 
-######## plot 1 ############
+######## plot 1 ###################
     set.seed(122)
     histdata <- rnorm(500)
 
     output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
-     })
+      saveRDS(input$slider,"slider.rds")
+     source("plots/plot1.R",local=T) 
+      
+    
+     
+    
+    })
 
 ###### Include Modules ###############
     callModule(gapModule, "asia", asia_data)

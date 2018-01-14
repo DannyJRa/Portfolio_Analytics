@@ -40,3 +40,10 @@ ggplot(mtcars, aes(x = wt, y = mpg)) +
   stat_smooth(method = "lm", se = F)
 ```
 
+```{r}
+library(plotrix)
+plot.new()
+ textbox(c(0,0.2), 1, c("many words","more words","why not?"))
+ 
+```
+

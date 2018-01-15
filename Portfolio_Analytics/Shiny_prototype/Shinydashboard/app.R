@@ -1,5 +1,6 @@
 source("global.R")
 source("updatedScript.R")
+library(shinyjqui)
 Logged = FALSE
 my_username <- ""
 my_password <- ""
@@ -9,13 +10,17 @@ p=ggplot(iris,aes(x =Sepal.Length,y=Sepal.Width))
 p=p+geom_point(mapping=aes(colour=Species),alpha=1)+geom_line()+
   scale_colour_manual(values=c('#2E1815','#008B45','#6495ED'))
 
+####r Charts
 
+# Visualization libraries
+require(rCharts)
+# Adjustments
+h3.align <- 'center'
+# Helper has server-side functions to read and manipulate data -----------------
+source("./scripts/helper.R", local=T) 
 
-
-
-
-
-
+#orders.extended <- read.data() # helper.R function
+##############3
 
 
 
@@ -91,7 +96,7 @@ dashboardBody(
       # First tab content
       tabItem(tabName = "symbol",
         fluidRow(
-          box(
+          box(width = 12,
             plotOutput("plotMACD", height = 250))
         ),
         fluidRow(
@@ -133,7 +138,21 @@ dashboardBody(
             "Currently selected tab from first box:",
             verbatimTextOutput("tabset1Selected")
             ),
-            tabPanel("Tab2", "Tab content 2")
+            tabPanel("Tab2", 
+                     
+                     
+                     
+                     orderInput('source', 'Source', items = month.abb,
+                                as_source = TRUE, connect = 'dest'),
+                     orderInput('dest', 'Dest', items = NULL, placeholder = 'Drag items here...'),
+                     verbatimTextOutput('order') 
+                     
+                     
+                     
+                     
+                     
+                     
+                     )
           )
         )
       ),
@@ -143,7 +162,27 @@ dashboardBody(
       tabItem(tabName = "GDP",
               
         tabsetPanel(id = "continent",
-            tabPanel("Test",ggEditUI('pUI')),
+            tabPanel(
+              
+              p(icon("area-chart"), "Analysis"),ggEditUI('pUI')),
+            tabPanel("Test",
+                     
+                     # Sales Over Time By Category
+                     fluidRow(h3("Categorical Bicycle Sales Over Time", align=h3.align)),
+                     fluidRow(
+                       column(6, h4("rCharts: View Sales By Primary Bike Category", align="center"), 
+                              p(showOutput("primaryBikeCatOut", "nvd3"), align="center"))
+                       
+                     )          
+                     
+                     
+              
+              
+              
+              
+              
+              
+            ),
             tabPanel("Asia", gapModuleUI("asia")),
             tabPanel("Europe", tableTestUI("test")),
             tabPanel("Oceania", DT::dataTableOutput("tbl")),
@@ -228,7 +267,7 @@ dashboardBody(
 
 
 
-
+# Server logic -----------------------------------------------------------------
 ################ #
 ######### SERVER #############################
 ###################### #
@@ -309,7 +348,12 @@ server <- function(input, output,session) {
     menuItem("Menu item", icon = icon("calendar"))
     })
 
-
+###########
+  output$menu <- renderMenu({
+    sidebarMenu(
+      menuItem("Menu item", icon = icon("calendar"))
+    )
+  })
 
 
 
@@ -420,8 +464,12 @@ server <- function(input, output,session) {
       
       dfstr=mtcars
       factors=c("wt")
-      rmdsource = paste(readLines("ggplot_new.rmd"), collapse="\n")
-      rmdsub = dkReplace(rmdsource, c(mydf=dfstr, input1=factors[1]))
+      rmdsource = paste(readLines("modules/1_scenarios/Portfolio_Scenarios.rmd"), collapse="\n")
+        rmdsub = dkReplace(rmdsource, c(
+        
+          mydf=dfstr,
+          input1=factors[1])
+        )
       
       brewout = capture.output(brew(text=rmdsub))
       test=paste(brewout, collapse="\n")    
@@ -451,6 +499,55 @@ server <- function(input, output,session) {
     ###
     
     callModule(ggEdit,'pUI',obj=reactive(p))
+    
+    
+    ####
+    output$text2 <- renderText(input$symbol)
+    
+    
+    ####shinyjqui
+    output$order <- renderPrint({ print(input$dest_order) })
+
+    
+    # Data Reactivity ------------------------------------------------------    
+    
+    
+    cat1SalesByYear <- orders.extended %>%
+        group_by(year, category1) %>%
+        summarize(price.total = sum(price.extended), 
+                  qty.total   = sum(quantity))
+    
+    
+    # Plots on Analysis Tab ------------------------------------------------
+    
+    # rChart - Sales By Category1
+    output$primaryBikeCatOut <- renderChart({
+      # Error handling
+     # if (is.null(orders.extended.filtered())) return(rCharts$new())
+      
+      cat1SalesByYearOutDF <- nPlot(
+        price.total ~ year,
+        group = "category1",
+        data = cat1SalesByYear,
+        type = "multiBarChart",
+        dom = "primaryBikeCatOut",
+        width = 550
+      )
+      
+      cat1SalesByYearOutDF$chart(margin = list(left = 85))
+      cat1SalesByYearOutDF$yAxis(axisLabel = "Sales", width = 80,
+                                 tickFormat = "#! function(d) {return '$' + d/1000000 + 'M'} !#")
+      cat1SalesByYearOutDF$xAxis(axisLabel = "Year", width = 70)
+      cat1SalesByYearOutDF$chart(stacked = T)
+      cat1SalesByYearOutDF
+    })
+    
+    
+    
+    
+    
+    
+        
 
 ####### Shiny Options #################    
     

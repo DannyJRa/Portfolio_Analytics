@@ -1,6 +1,7 @@
 source("global.R")
 source("updatedScript.R")
 library(shinyjqui)
+library(tidyverse)
 Logged = FALSE
 my_username <- ""
 my_password <- ""
@@ -377,7 +378,22 @@ server <- function(input, output,session) {
 ########## plot MACD
     output$plotMACD <- renderPlot({
 
-      source("plots/plot_MACD.R",local=T) 
+
+
+        source("plots/plot_MACD.R", local = T)
+
+        ######### Progress BAr
+        ##### https://shiny.rstudio.com/articles/progress.html
+        ##########
+      # Create a Progress object
+      progress <- shiny::Progress$new()
+      # Make sure it closes when we exit this reactive, even if there's an error
+      on.exit(progress$close())
+
+        progress$set(message = "Making plot", value = 0)
+            Sys.sleep(3)
+
+      ##################333
       plot_MACD
     })
  
@@ -543,7 +559,13 @@ server <- function(input, output,session) {
     })
     
     
-    
+    #####3 Using Scheduled Data in Shiny
+    ########3
+#    daily_data <- reactiveFileReader(
+#  intervalMillis = 5000,
+#  filePath = "./data",
+#  readFunc = readr::read_csv
+#)
     
     
     

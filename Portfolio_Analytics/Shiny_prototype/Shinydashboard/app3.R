@@ -63,18 +63,22 @@ dashboardBody(
             ),
             box(
                 title = "Inputs", status = "warning", solidHeader = TRUE,
-                "Box content here", br(), "More box content",
-                verbatimTextOutput("fileReaderText")
+                "Box content here", br(), "More box content"
+            
             ),
-          fluidRow(
-                  box(
-                    title = "Histogram2", status = "primary", solidHeader = TRUE,
-                    collapsible = TRUE,
-                    plotOutput("plotRolling", height = 250)
-                  )      
-        
-          )       
-                
+            fluidRow(
+              column(6, wellPanel(
+                "This side uses a reactiveFileReader, which is monitoring",
+                "the log file for changes every 0.5 seconds.",
+                verbatimTextOutput("fileReaderText")
+              )),
+              
+              column(6, wellPanel(
+                "This side uses a reactivePoll, which is monitoring",
+                "the log file for changes every 4 seconds.",
+                verbatimTextOutput("pollText")
+              ))     
+            )    
         ,
 
         ################# Input symbol
@@ -584,23 +588,33 @@ server <- function(input, output,session) {
     
     
     
+    # ============================================================
+    # This part of the code monitors the file for changes once
+    # every four seconds.
     
+    pollData <- reactivePoll(4000, session,
+                             # This function returns the time that the logfile was last
+                             # modified
+                             checkFunc = function() {
+                               if (file.exists(logfilename))
+                                 file.info(logfilename)$mtime[1]
+                               else
+                                 ""
+                             },
+                             # This function returns the content of the logfile
+                             valueFunc = function() {
+                               readLines(logfilename)
+                             }
+    )
     
-    
-    #    updated_data <- reactiveFileReader(
-    #  intervalMillis = 5000,
-    #  filePath = "./reactiveData",
-    #  readFunc = openxlsx::read.xlsx
-    #)
-    
-    #    library(openxlsx)
-    #   updated_data=read.xlsx("./reactiveData/AllocationCurrent.xlsx")
-    
-    
-    #   output$allocation <- renderTable({
-    #     as.data.frame(updated_data)
-    #    }) 
-    
+    output$pollText <- renderText({
+      # Read the text, and make it a consistent number of lines so
+      # that the output box doesn't grow in height.
+      text <- pollData()
+      length(text) <- 14
+      text[is.na(text)] <- ""
+      paste(text, collapse = '\n')
+    })
         
 
 ####### Shiny Options #################    

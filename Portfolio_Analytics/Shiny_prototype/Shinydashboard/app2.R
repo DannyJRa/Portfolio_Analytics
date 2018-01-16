@@ -1,8 +1,6 @@
 source("global.R")
 source("updatedScript.R")
 library(shinyjqui)
-library(tidyverse)
-library(openxlsx)
 Logged = FALSE
 my_username <- ""
 my_password <- ""
@@ -64,7 +62,8 @@ dashboardBody(
             box(
                 title = "Inputs", status = "warning", solidHeader = TRUE,
                 "Box content here", br(), "More box content",
-                verbatimTextOutput("fileReaderText")
+                sliderInput("slider2", "Slider input:", 1, 100, 50),
+                textInput("text2", "Text input:")
             ),
           fluidRow(
                   box(
@@ -124,7 +123,7 @@ dashboardBody(
         tabBox(
           side = "right", height = "250px",
           selected = "Tab3",
-          tabPanel("Tab1", tableOutput('allocation')),
+          tabPanel("Tab1", tableOutput('tbl2')),
           tabPanel("Tab2", "Tab content 2"),
           tabPanel("Tab3", "Note that when side=right, the tab order is reversed.")
         )
@@ -378,22 +377,7 @@ server <- function(input, output,session) {
 ########## plot MACD
     output$plotMACD <- renderPlot({
 
-
-
-        source("plots/plot_MACD.R", local = T)
-
-        ######### Progress BAr
-        ##### https://shiny.rstudio.com/articles/progress.html
-        ##########
-      # Create a Progress object
-      progress <- shiny::Progress$new()
-      # Make sure it closes when we exit this reactive, even if there's an error
-      on.exit(progress$close())
-
-        progress$set(message = "Making plot", value = 0)
-            Sys.sleep(3)
-
-      ##################333
+      source("plots/plot_MACD.R",local=T) 
       plot_MACD
     })
  
@@ -559,47 +543,9 @@ server <- function(input, output,session) {
     })
     
     
-    #####3 Using Scheduled Data in Shiny
-    ########3
-    
-    logfilename="./reactiveData/AllocationCurrent.txt"
-    # readLines(logfilename)
-    #####3 Using Scheduled Data in Shiny
-    ########3
-    
-    # ============================================================
-    # This part of the code monitors the file for changes once per
-    # 0.5 second (500 milliseconds).
-    fileReaderData <- reactiveFileReader(500, session,
-                                         logfilename, readLines)
-    
-    output$fileReaderText <- renderText({
-      # Read the text, and make it a consistent number of lines so
-      # that the output box doesn't grow in height.
-      text <- fileReaderData()
-      length(text) <- 14
-      text[is.na(text)] <- ""
-      paste(text, collapse = '\n')
-    })
     
     
     
-    
-    
-    
-    #    updated_data <- reactiveFileReader(
-    #  intervalMillis = 5000,
-    #  filePath = "./reactiveData",
-    #  readFunc = openxlsx::read.xlsx
-    #)
-    
-    #    library(openxlsx)
-    #   updated_data=read.xlsx("./reactiveData/AllocationCurrent.xlsx")
-    
-    
-    #   output$allocation <- renderTable({
-    #     as.data.frame(updated_data)
-    #    }) 
     
         
 

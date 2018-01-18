@@ -39,7 +39,10 @@ dashboardBody(
     tabItems(
 # Login tab
       tabItem(tabName = "login",
-         verbatimTextOutput("dataInfo")),
+         verbatimTextOutput("dataInfo")
+         
+         
+         ),
       
 # First tab content
       tabItem(tabName = "dashboard",
@@ -108,6 +111,17 @@ dashboardBody(
           valueBoxOutput("progressBox"),
           
           valueBoxOutput("approvalBox")
+        ),
+        fluidRow(
+          
+          column(12,
+                 #Show pdf in separate tab
+                 a(href="modules/1_scenarios/Portfolio_Scenarios.pdf", target="_blank", "Click here for the results..."),
+                #inlcude rmarkdown; but not so nice
+                  includeHTML("modules/1_scenarios/Portfolio_Scenarios.html")
+                 
+          )
+          
         )
       ),
 

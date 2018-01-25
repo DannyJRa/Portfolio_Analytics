@@ -200,7 +200,7 @@ ui <- dashboardPage(skin = "blue",
                                                      fluidRow(h3("Categorical Bicycle Sales Over Time", align=h3.align)),
                                                      fluidRow(
                                                        column(6, h4("rCharts: View Sales By Primary Bike Category", align="center"), 
-                                                              p(showOutput("primaryBikeCatOut", "nvd3"), align="center"))
+                                                             p(showOutput("primaryBikeCatOut", "nvd3"), align="center"))
                                                        
                                                      )          
                                                      

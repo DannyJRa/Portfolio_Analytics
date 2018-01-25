@@ -314,7 +314,9 @@ CodePlot <- function(input, output, session) {
   ########33
   
   output$markdown <- renderUI({
-    HTML(markdown::markdownToHTML(knit('slides.rmd', quiet = TRUE)))
+    #text = "Hello World!", fragment.only = TRUE
+   # HTML(markdown::markdownToHTML(knit('report.rmd', quiet = TRUE)))
+    HTML(markdown::markdownToHTML(file='report.rmd'))
   })
   
   #####

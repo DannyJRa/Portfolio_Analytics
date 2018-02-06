@@ -1,28 +1,27 @@
-#
+source("global.R")
 ##
 #Source: https://stackoverflow.com/questions/43404058/starting-shiny-app-after-password-input-with-shinydashboard
 library(shiny)
 library(shinydashboard)
+library(leaflet)
 
 Logged = FALSE
 my_username <- ""
 my_password <- ""
 
 ui <- dashboardPage(skin='blue',
-                    dashboardHeader( title = "Dashboard"
-                                     
-                                                   
-                                     ),
-                    dashboardSidebar(),
-                    dashboardBody("Test",
+       
+                       
+                    ## Header
+                    header,
+                    
+                    ## Sidebar content
+                    sidebar,
+                    
+                    ## Body content
+                  dashboardBody("Test",
 
-                    tags$head(tags$style(HTML("
-                               body {
-                                  width: 100% !important;
-                                  max-width: 100% !important;
-                               }
-
-                               "))),
+                    
                                  
                     
                                tags$h1(
@@ -35,14 +34,14 @@ ui <- dashboardPage(skin='blue',
                               "Some text following a break"
                               ),
 
-uiOutput("markdown"),
+
 
                                   # actionButton("show", "Login"),
                                 #  verbatimTextOutput("dataInfo"),
                                   numericInput("run", "Observations:", 10, min = 1, max = 100),
                                   verbatimTextOutput("value"),
                                   plotOutput('plot1'),
-                                    plotOutput('plot_basic'),
+                              leafletOutput('plot_basic'),
                 
                                   
                                   tags$div(
@@ -226,17 +225,7 @@ server = function(input, output,session) {
 
 
 
-    ########33
-
-    output$markdown <- renderUI(
-{
-    #text = "Hello World!", fragment.only = TRUE
-    # HTML(markdown::markdownToHTML(knit('report.rmd', quiet = TRUE)))
-    #https://stackoverflow.com/questions/40074340/shiny-mainpanel-width-when-including-markdown
-    
-    HTML(markdown::markdownToHTML(file = 'report.rmd'))
-})
-
+ 
 
  
   

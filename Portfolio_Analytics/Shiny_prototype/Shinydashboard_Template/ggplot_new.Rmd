@@ -1,0 +1,49 @@
+---
+title: "ggplot"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## 
+
+Source: https://campus.datacamp.com/courses/data-visualization-with-ggplot2-2/chapter-2-coordinates-and-facets?ex=1
+
+```{r}
+library(ggplot2)
+# ggplot2 is already loaded
+
+# Explore the mtcars data frame with str()
+str(mtcars)
+
+# A scatter plot with LOESS smooth:
+ggplot(mtcars, aes(x = input1, y = mpg)) +
+  geom_point() +
+  geom_smooth()
+
+# A scatter plot with an ordinary Least Squares linear model:
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+# The previous plot, without CI ribbon:
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = F)
+
+# The previous plot, without points:
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  stat_smooth(method = "lm", se = F)
+```
+
+```{r}
+library(plotrix)
+plot.new()
+ textbox(c(0,0.2), 1, c("many words","more words","why not?"))
+ 
+```
+

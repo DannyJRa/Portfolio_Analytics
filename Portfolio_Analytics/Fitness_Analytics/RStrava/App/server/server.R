@@ -19,11 +19,11 @@ Start = my_acts %>%
         map_chr("start_date") %>%
         ymd_hms()
 
-library(lubridate)
-dt1 <- '2014-08-23 17:23:02'
-dt1=Start[1]
-t=ymd_hms(dt1)
-wday(t, label = TRUE)
+#library(lubridate)
+#dt1 <- '2014-08-23 17:23:02'
+#dt1=Start[1]
+#t=ymd_hms(dt1)
+#wday(t, label = TRUE)
 
 
 

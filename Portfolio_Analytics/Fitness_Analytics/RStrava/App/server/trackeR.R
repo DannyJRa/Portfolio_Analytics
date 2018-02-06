@@ -3,18 +3,20 @@
 # TODO:Load state from previously suspended application
 #TODO URL definition
 ############### get URL
-#TrainUrl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+#id=1391423025
+#URL <- "https://www.strava.com/activities/1391423025/export_tcx"
 
 #########################
 
+filepath <- paste0("R:/5_IT/5_Secrets/TCX/")
 
-#TrainFile <- "/server/trackerR/run_tcx.tcx"
+#TrainFile <- paste0(filepath,id,".tcx")
 
 
 # download the datasets
 #if (!file.exists(TrainFile))
 #{
-#    download.file(TrainUrl, destfile = TrainFile)
+#    download.file(URL, destfile = TrainFile)
 #}
 
 
@@ -22,12 +24,22 @@
 
 ## ----message=FALSE, warning=FALSE----------------------------------------
 library("trackeR")
-filepath <- paste0(getwd(),"/server/trackeR/TCX/")
-runs <- readDirectory(filepath)
-str(runs)
+# download the datasets
+if (!file.exists(paste0(filepath,"runs.rds")))
+{
+#   runs <- readDirectory(filepath)
+  str(runs)
+
+#https://www.fromthebottomoftheheap.net/2012/04/01/saving-and-loading-r-objects/
+saveRDS(runs,file=paste0(filepath,"runs.rds"))
+}
+
+runs=readRDS(paste0(filepath,"runs.rds"))
+
+#run=input$run
 
 ## ------------------------------------------------------------------------
-plot_basic=plot(runs, session = 1, what = "speed", threshold = FALSE)
+#plot_basic=plot(runs, session = 1, what = "speed", threshold = FALSE)
 
 
 ## gfdgdf------------------------------------------------------------------------
@@ -61,7 +73,7 @@ summary(runs, session = 2, movingThreshold = 1)
 ## ------------------------------------------------------------------------
 
 test2 = as.data.frame(runs)
-leafletRoute(runs, sessions = 1)
+plot_basic=leafletRoute(runs, sessions = 1)
 
 
 ## ------------------------------------------------------------------------

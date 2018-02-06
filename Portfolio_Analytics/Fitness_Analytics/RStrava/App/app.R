@@ -1,4 +1,5 @@
 #
+##
 #Source: https://stackoverflow.com/questions/43404058/starting-shiny-app-after-password-input-with-shinydashboard
 library(shiny)
 library(shinydashboard)
@@ -14,11 +15,34 @@ ui <- dashboardPage(skin='blue',
                                      ),
                     dashboardSidebar(),
                     dashboardBody("Test",
+
+                    tags$head(tags$style(HTML("
+                               body {
+                                  width: 100% !important;
+                                  max-width: 100% !important;
+                               }
+
+                               "))),
+                                 
+                    
+                               tags$h1(
+                                        "My header"
+                                      )
+                               ,
+                              tags$div(
+                              "Some text followed by a break",
+                              tags$br(),
+                              "Some text following a break"
+                              ),
+
+uiOutput("markdown"),
+
                                   # actionButton("show", "Login"),
                                 #  verbatimTextOutput("dataInfo"),
                                   numericInput("run", "Observations:", 10, min = 1, max = 100),
                                   verbatimTextOutput("value"),
                                   plotOutput('plot1'),
+                                    plotOutput('plot_basic'),
                 
                                   
                                   tags$div(
@@ -116,9 +140,13 @@ div.columns div   { width: 300px; height: 100px; float: left; }
                                                uiOutput("textBox", width = 10),
                                                br(),
                                                htmlOutput("dataInfo"))
+
                                
-                               
-                               ))
+                               )
+
+ 
+
+                               )
                     
                     
                     
@@ -128,112 +156,88 @@ div.columns div   { width: 300px; height: 100px; float: left; }
 
 server = function(input, output,session) {
   
-  values <- reactiveValues(authenticated = FALSE)
+    #### Password modal box
+    #source("server/password.R", local = T)
   
-  # Return the UI for a modal dialog with data selection input. If 'failed' 
-  # is TRUE, then display a message that the previous value was invalid.
-  dataModal <- function(failed = FALSE) {
-    modalDialog(
-      textInput("username", "Username:"),
-      passwordInput("password", "Password:"),
-      footer = tagList(
-        # modalButton("Cancel"),
-        actionButton("ok", "OK")
-      )
-    )
-  }
-  
-  # Show modal when button is clicked.  
-  # This `observe` is suspended only whith right user credential
-  
-  obs1 <- observe({
-    showModal(dataModal())
-  })
-  
-  # When OK button is pressed, attempt to authenticate. If successful,
-  # remove the modal. 
-  
-  obs2 <- observe({
-    req(input$ok)
-    isolate({
-      Username <- input$username
-      Password <- input$password
-    })
-    Id.username <- which(my_username == Username)
-    Id.password <- which(my_password == Password)
-    if (length(Id.username) > 0 & length(Id.password) > 0) {
-      if (Id.username == Id.password) {
-        Logged <<- TRUE
-        values$authenticated <- TRUE
-        obs1$suspend()
-        removeModal()
-        
-      } else {
-        values$authenticated <- FALSE
-      }     
+
+    ###Save Input if changes
+    #Source: http://www.programfaqs.com/faq/reactive-variables-and-input-in-r-shiny-save-everything-but-not-every-time/
+    observeEvent(reactiveValuesToList(input),
+    {
+
+        lapply(names(reactiveValuesToList(input)), function(item)
+        {
+            saveRDS(input[[item]],paste("test",item,"rds",sep = "."))
+        })
+
     }
-  })
-  
-  
-  ####################
-  library(rStrava)
-  path="R:/5_IT/5_Secrets/"
-  load(paste0(path,"Strava_stoken.Rdata"))
-  
-  # get activities, get activities by location, plot
-  my_acts <- get_activity_list(stoken)
+
+  )
+
+
+    ####################
+    source("server/server.R", local = T)
   
   
   
-  
-  
-  output$dataInfo <- renderPrint({
-    
-    runNo=input$run
-        run=compile_activity(my_acts[runNo])
-    
-    run_distance=run$distance
-    
-    run_distance
-    
+    #Km for selected run for POPUP
+    output$dataInfo <- renderPrint(
+    {
+     runNo = input$run
+     run = compile_activity(my_acts[runNo])
+     run_distance = run$distance
+     run_distance
   })
     
 
-  
-  output$dataInfo2 <- renderText({
-    
-    runNo=input$run
-    run=compile_activity(my_acts[runNo])
-    
-    run_distance=as.double(run$distance)
-    paste0(round(run_distance,0)," m")
-  })
-    
-    
-  #  source("data.R",local=T)
-    output$plot1 <- renderPlot({
-      runNo=input$run
-      # plots for most recent activity
-      test=get_spdsplits(my_acts, stoken, acts = runNo, units = 'imperial')
-      test
+    #Km for selected run
+    output$dataInfo2 <- renderText(
+    {
+    runNo = input$run
+    run = compile_activity(my_acts[runNo])
+    run_distance = as.double(run$distance)
+    paste0(round(run_distance, 0), " m")
     })
     
     
-    output$value <- renderText({ input$obs }) 
+    #Plot: Average speed by miles
+    output$plot1 <- renderPlot(
+    {
+    source("server/plot1.R", local = T)
+    #plot output here not in source file; doesnt work
+    plot1
+    })
     
+
+    # Test
+    output$value <- renderText(
+    {
+    input$obs
+    })
     
+    #Plot: Average speed by miles
+    output$plot_basic <- renderPlot(
+     {
+     
+     #plot output here not in source file; doesnt work
+     plot_basic
+     })
+
+
+
+
+    ########33
+
+    output$markdown <- renderUI(
+{
+    #text = "Hello World!", fragment.only = TRUE
+    # HTML(markdown::markdownToHTML(knit('report.rmd', quiet = TRUE)))
+    #https://stackoverflow.com/questions/40074340/shiny-mainpanel-width-when-including-markdown
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    HTML(markdown::markdownToHTML(file = 'report.rmd'))
+})
+
+
  
   
 }

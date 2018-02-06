@@ -23,7 +23,7 @@ obs1 <- observe(
   })
 
 # When OK button is pressed, attempt to authenticate. If successful,
-# remove the modal. 
+# remove the modal.
 
 obs2 <- observe(
   {

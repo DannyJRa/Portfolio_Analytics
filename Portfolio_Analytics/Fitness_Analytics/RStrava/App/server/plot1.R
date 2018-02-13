@@ -7,5 +7,5 @@
 #create plot
 
 # plots for most recent activity
-plot1 <- get_spdsplits(my_acts, stoken, acts = input$run, units = 'imperial')
+plot1 <- get_spdsplits(my_acts, stoken, acts = input$run, units = 'metric')
 

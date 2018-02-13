@@ -2,7 +2,7 @@ library(rStrava)
 library(magrittr)
 library(purrr)
 library(tidyverse)
-
+library(trackeR)
 
 path = "R:/5_IT/5_Secrets/"
 load(paste0(path, "Strava_stoken.Rdata"))
@@ -14,9 +14,11 @@ my_acts <- get_activity_list(stoken)
 
 Id = my_acts %>% map_int("id")
 
+
+
 library(lubridate)
-Start = my_acts %>%
-        map_chr("start_date") %>%
+StartDate = my_acts %>%
+        map_chr("start_date_local") %>%
         ymd_hms()
 
 #library(lubridate)

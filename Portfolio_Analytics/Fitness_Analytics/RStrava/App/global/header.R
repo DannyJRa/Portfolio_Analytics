@@ -1,6 +1,6 @@
 header <- dashboardHeader(
-    title = "Portfolio Analytics",
-    titleWidth = 300,
+    title = "Fitness Analytics",
+    titleWidth = 200,
     #
     ## Message menus (static)
     dropdownMenu(type = "messages",

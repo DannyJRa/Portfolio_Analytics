@@ -9,177 +9,143 @@ Logged = FALSE
 my_username <- ""
 my_password <- ""
 
+
+
+
+
+
+
+
+
+
+
 ui <- dashboardPage(skin='blue',
        
-                       
                     ## Header
                     header,
                     
                     ## Sidebar content
                     sidebar,
                     
-                    ## Body content
-                  dashboardBody("Test",
-
-                    
-                                 
-                    
-                               tags$h1(
-                                        "My header"
-                                      )
-                               ,
-                              tags$div(
-                              "Some text followed by a break",
-                              tags$br(),
-                              "Some text following a break"
-                              ),
-
-
-
-                                  # actionButton("show", "Login"),
-                                #  verbatimTextOutput("dataInfo"),
-                                  numericInput("run", "Observations:", 10, min = 1, max = 100),
-                                  verbatimTextOutput("value"),
-                                  plotOutput('plot1'),
-                              leafletOutput('plot_basic'),
+  ## Body content
+  dashboardBody(
+    tabItems(
+      # Login tab
+      tabItem(tabName = "login",
+              verbatimTextOutput("dataInfo")
+      ),
+      
+      tabItem(tabName = "summary",
+                ######
                 
-                                  
-                                  tags$div(
-                                    HTML('<div id="u560"><!-- group -->
-      <div class="clearfix" id="u560_align_to_page">
-                                         <div class="rounded-corners grpelem" id="u600"><!-- simple frame --></div>
-                                         <div class="clearfix grpelem" id="pu641-4"><!-- column -->
-                                         <div class="clearfix colelem" id="u641-4"><!-- content -->
-                                         <p>Visit us</p>
-                                         </div>
-                                         <div class="clearfix colelem" id="u640-4"><!-- content -->
-                                         <p>Park Ave, San Jose, CA</p>
-                                         </div>
-                                         </div>
-                                         <div class="rounded-corners grpelem" id="u617"><!-- simple frame --></div>
-                                         <div class="clearfix grpelem" id="pu635-4"><!-- column -->
-                                         <div class="clearfix colelem" id="u635-4"><!-- content -->
-                                         <p>Email us</p>
-                                         </div>
-                                         <div class="clearfix colelem" id="u634-4"><!-- content -->
-                                         <p>hi@website.com</p>
-                                         </div>
-                                         </div>
-                                         <div class="rounded-corners grpelem" id="u613"><!-- simple frame --></div>
-                                         <div class="clearfix grpelem" id="pu612-4"><!-- column -->
-                                         <div class="clearfix colelem" id="u612-4"><!-- content -->
-                                         <p>Call us</p>
-                                         </div>
-                                         <div class="clearfix colelem" id="u631-4"><!-- content -->
-                                         <p>800 456 45 4545</p>
-                                         </div>
-                                         </div>
-                                         </div>
-                                         </div>')
-                                  ),
-                                  a="5",
-                                  tags$h1("paste0(a)"),
-                               #  ,tags$div(data-value = "test")      # bad
-                                 tags$div(`data-value` = "test"),    # good
-                               
-                               
-                               attendeeForm <- HTML('
-  <p>
-                                                    
-                                                    <label for="name">Name: </label>
-                                                    <input style="width: 150px;" id="name" type="text" placeholder="Enter name", class="name">
-                                                    
-                                                    <!--Department field-->
-                                                    <label for="department">Department: </label>
-                                                    <input style="width: 150px;" id="department" type="text" placeholder="Enter department", class="department">
-                                                    
-                                                    <!--Email field-->
-                                                    <label for="email">Email: </label>
-                                                    <input style="width: 150px;" id="email" type="text" placeholder="example@email.com", class="email">
-                                                    
-                                                    <!--Remove button-->
-                                                    <input type = "button" class="remover" value = &#10008>
-                                                    </p>
-                                                    '),
-                               # Using tags$ each time
-                               tags$div(class = "myclass",
-                                        tags$h3("header"),
-                                        tags$p("text")
-                               ),
-                               # Equivalent to above, but using withTags
-                               withTags(
-                                 div(class = "myclass",
-                                     h3("header"),
-                                     p("text")
-                                 )
-                               ),
-                               
-                               tags$head(tags$style(HTML('
-   div.columns       { width: 900px; }
-div.columns div   { width: 300px; height: 100px; float: left; }
-                                                         div.grey          { background-color: #cccccc; }
-                                                         div.red           { background-color: #e14e32; }
-                                                         div.clear         { clear: both; }
-                                                         '))),
-                               tags$div(
-                                 HTML('
-<div class="columns">
-    <div id=dataInfo2 class="shiny-html-output"></div>
-                                      <div class="grey">Column 2</div>
-                                      <div class="red" >Column 3</div>
-                                      </div>
-                                      <div class="clear"></div>
+                box(
+                  plotOutput("plot_summary",width = 500)
+                )
+                ######## 
 
-                             
-                               '),
-                                 absolutePanel(id = "controls", class = "panel panel-default", fixed =     TRUE, 
-                                               style="padding-left: 8px; padding-right: 8px; padding-top: 8px; padding-bottom: 8px",
-                                               draggable = TRUE, top = 126, left = "auto", right = 20, bottom = "auto",
-                                               width = 250, height = "auto",
-                                               uiOutput("textBox", width = 10),
-                                               br(),
-                                               htmlOutput("dataInfo"))
 
-                               
-                               )
 
- 
+      ),
+      
+      # First tab content
+      tabItem(tabName = "dashboard",
 
-                               )
-                    
-                    
-                    
-                    
+      fluidRow(
+# A static infoBox
+      infoBoxOutput("approvalBox"),
+      infoBox("Distanz", 10 * 2, icon = icon("credit-card")),
+# Dynamic infoBoxes
+      infoBoxOutput("progressBox")
+
+    ),
+
+
+              fluidRow(
+                ######
+                box(
+                  numericInput("run", "Observations:", 10, min = 1, max = 100)
+                )
+                #######
                 
+                
+                ######
+                ,
+                box(
+                  "Test"
+                )
+                ######
+                
+                
+                ######
+                ,
+                box(
+                  plotOutput("plot1", height = 250)
+                )
+                ########
+                
+   
+
+                ######
+                ,
+                box(
+                  plotOutput("plot_heatmap", height = 250)
+                )
+                ########  
+
+
+              ,
+                box(
+                 leafletOutput('plot_basic')
+                 )
+              )
+      )   
+    )
+    #close body
+  )
+                    
+                    
+                    
+#close ui                
 )
 
-server = function(input, output,session) {
-  
-    #### Password modal box
-    #source("server/password.R", local = T)
-  
 
+
+
+server = function(input, output,session) {
+
+  ##### load server ###############
+  source("server/server.R", local = T)
+    
+    
+#### Password modal box #######
+#source("server/password.R", local = T)
+################################  
+  
+  
+  
+  
+  
+###############################################  
+##########Save input to rds#########
     ###Save Input if changes
     #Source: http://www.programfaqs.com/faq/reactive-variables-and-input-in-r-shiny-save-everything-but-not-every-time/
-    observeEvent(reactiveValuesToList(input),
-    {
+  #   observeEvent(reactiveValuesToList(input),
+  #   {
+  # 
+  #       lapply(names(reactiveValuesToList(input)), function(item)
+  #       {
+  #           saveRDS(input[[item]],paste("test",item,"rds",sep = "."))
+  #       })
+  # 
+  #   }
+  # 
+  # )
+  ######################################
+  ######################################
 
-        lapply(names(reactiveValuesToList(input)), function(item)
-        {
-            saveRDS(input[[item]],paste("test",item,"rds",sep = "."))
-        })
-
-    }
-
-  )
 
 
-    ####################
-    source("server/server.R", local = T)
-  
-  
-  
-    #Km for selected run for POPUP
+    # Km for selected run for POPUP ####
     output$dataInfo <- renderPrint(
     {
      runNo = input$run
@@ -189,7 +155,7 @@ server = function(input, output,session) {
   })
     
 
-    #Km for selected run
+    #Km for selected run ####
     output$dataInfo2 <- renderText(
     {
     runNo = input$run
@@ -199,36 +165,66 @@ server = function(input, output,session) {
     })
     
     
-    #Plot: Average speed by miles
+    #Plot: Average speed by miles ####
     output$plot1 <- renderPlot(
     {
     source("server/plot1.R", local = T)
     #plot output here not in source file; doesnt work
     plot1
     })
-    
 
-    # Test
-    output$value <- renderText(
+
+    #Plot: Summary ####
+    output$plot_summary <- renderPlot(
     {
-    input$obs
+    source("server/plot_summary.R", local = T)
+    #plot output here not in source file; doesnt work
+    plot_summary
     })
+
+    #Plot: Heatmap ####
+    output$plot_heatmap <- renderPlot(
+    {
+    source("server/plot_heatmap.R", local = T)
+    #plot output here not in source file; doesnt work
+    plot_heatmap
+    })
+
+######## llaflet
+    output$plot_basic <- renderLeaflet(
+      {
+        
+        #plot output here not in source file; doesnt work
+        plot_basic
+      })
     
-    #Plot: Average speed by miles
-    output$plot_basic <- renderPlot(
-     {
-     
-     #plot output here not in source file; doesnt work
-     plot_basic
-     })
 
 
 
+    ########## INFO BOXES
+    output$progressBox <- renderInfoBox(
+{
+    infoBox(
+      "Hoehenmeter", paste0(25 + input$run, "%"), icon = icon("list"),
+      color = "purple"
+    )
+})
+    output$approvalBox <- renderInfoBox(
+{
+        runNo = input$run
+        run = compile_activity(my_acts[runNo])
+        run_distance = as.double(run$distance)
+    infoBox(
+
+      "Distanz", paste0(25 + run_distance, " km"), icon = icon("thumbs-up", lib = "glyphicon"),
+      color = "yellow"
+    )
+})
 
  
 
  
-  
+#### end server   
 }
 
 shinyApp(ui,server)

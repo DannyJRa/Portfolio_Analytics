@@ -22,3 +22,6 @@ sourceDir <- function(path, trace = TRUE, ...) {
 }
 
 rm(dependencies, new.packages)
+
+
+mykey <- Sys.getenv("google_key")

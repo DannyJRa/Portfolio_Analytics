@@ -32,7 +32,11 @@ ui <- dashboardPage(skin='blue',
     tabItems(
       # Login tab
       tabItem(tabName = "login",
-              verbatimTextOutput("dataInfo")
+              verbatimTextOutput("dataInfo"),
+              DT::dataTableOutput('test'),
+plotOutput('x2', height = 500)  ,
+
+htmlOutput("testHTML")
       ),
       
       tabItem(tabName = "summary",
@@ -193,7 +197,7 @@ server = function(input, output,session) {
 ######## llaflet
     output$plot_basic <- renderLeaflet(
       {
-        
+        plot_basic<-leafletRoute(runs, sessions = 1)
         #plot output here not in source file; doesnt work
         plot_basic
       })
@@ -221,7 +225,32 @@ server = function(input, output,session) {
     )
 })
 
- 
+
+
+
+    ########3
+
+
+    output$testHTML <- renderText(
+{
+    paste("<b>Your length is: ", input$run, "<br>", "Your weight is: ", DATA[input$run,]$StartDate, "</b>")
+})
+
+
+    #https://rstudio.github.io/DT/shiny.html
+
+    output$test <- renderDataTable(datatable(DATA, list(mode = "single", target = "cell")))
+
+   output$x2 = renderPlot(
+{
+    s = input$test_rows_selected
+    
+    plot(DATA$Distance)
+    if (length(s)) points(DATA$Distance, pch = 19, cex = 2)
+})
+
+
+
 
  
 #### end server   

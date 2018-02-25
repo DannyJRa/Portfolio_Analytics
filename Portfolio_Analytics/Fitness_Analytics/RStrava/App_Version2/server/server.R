@@ -21,13 +21,8 @@ Distance = my_acts %>% map_dbl("distance")
 
 library(lubridate)
 StartDate = my_acts %>%
-        map_chr("start_date") %>%
+        map_chr("start_date_local") %>%
         ymd_hms()
-
-StartDateDay = my_acts %>%
-  map_chr("start_date") %>%
-  ymd_hms() %>% 
-  date()
 
 
 DATA=tibble(Id,StartDate,Name,Distance,Moving,Elapsed)
@@ -45,11 +40,3 @@ DATA=tibble(Id,StartDate,Name,Distance,Moving,Elapsed)
 
 ############
 source("server/trackeR.R", local = T)
-
-
-########### READ SQL
-
-
-source("R:/5_IT/5_Secrets/SQL_docker_connection_home.R")
-Running<- dbReadTable(conn = con, name = 'Running')
-

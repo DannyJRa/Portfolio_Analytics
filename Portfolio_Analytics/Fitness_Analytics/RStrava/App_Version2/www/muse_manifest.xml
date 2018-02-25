@@ -1,0 +1,82 @@
+<manifest alg="2" build="2018.0.0.379" opt="false" iceEnabled="true" iceMarkupVersion="2" iceEnabledOptions="link,responsive,cachebuster,textStyling" exportTarget="other" domain="musefree.com" resolutions="1x" timestamp="1517769896653">
+  <folder name="css">
+    <file name="site_global.css" crc="444006867"/>
+    <file name="index.css" crc="4229703887" ref="index"/>
+  </folder>
+  <folder name="scripts">
+    <file name="jquery-1.8.3.min.js" crc="209076791" ref="index"/>
+    <file name="museutils.js" crc="3803043152" ref="index"/>
+    <file name="whatinput.js" crc="86476730" ref="index"/>
+    <file name="museconfig.js" crc="380897831" ref="index"/>
+    <file name="webpro.js" crc="242022427" ref="index"/>
+    <file name="musewpslideshow.js" crc="457073769" ref="index"/>
+    <file name="jquery.museoverlay.js" crc="483674903" ref="index"/>
+    <file name="touchswipe.js" crc="4066113679" ref="index"/>
+    <file name="jquery.musepolyfill.bgsize.js" crc="4148998990" ref="index"/>
+    <file name="jquery.watch.js" crc="99325471" ref="index"/>
+    <file name="jquery.musemenu.js" crc="3784699396" ref="index"/>
+    <file name="jquery.scrolleffects.js" crc="530399994" ref="index"/>
+    <file name="html5shiv.js" crc="4241844378" ref="index"/>
+    <file name="require.js" crc="4157109226" ref="index"/>
+  </folder>
+  <folder name="images">
+    <file name="coast-curacao-dawn-953.jpg" crc="3802643356" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="blank.gif" crc="4208392903" ref="index"/>
+    <file name="dawn-dust-grass-2946.jpg" crc="479531023" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="arleft1.png" crc="443796847" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="arright1.png" crc="3877265485" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="loading.gif" crc="3815509949" ref="index"/>
+    <file name="architecture-blue-sky-building-563-525x350.jpg" crc="472742607" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="beach-building-house-2544-527x350.jpg" crc="6484233" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="bridge-steel-692-528x350.jpg" crc="4063710919" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="building-bunker-house-554-525x350.jpg" crc="457315363" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="building-church-m--laga-cathedral-3625-525x350.jpg" crc="367380583" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="building-house-overgrown-2619-527x350.jpg" crc="4224280406" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="white-icon01.png" crc="315493121" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="white-icon03.png" crc="4265701298" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="white-icon02.png" crc="454308074" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="coast-curacao-dawn-953-u466-fr.png" crc="21920556" ref="index"/>
+    <file name="footericon01.png" crc="147744704" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="footericon02.png" crc="4157289281" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="footericon03.png" crc="188072960" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="heart.png" crc="117585526" seo="true" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+    <file name="pattern-89ds.jpg" crc="4119585765" ref="index">
+      <caption webpage="index" alt=""/>
+    </file>
+  </folder>
+  <file name="index.html" crc="4045371736" seo="true" mt="1517769895114" redirect="true"/>
+</manifest>

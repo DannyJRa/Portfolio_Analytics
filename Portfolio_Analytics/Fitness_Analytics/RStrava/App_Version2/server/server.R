@@ -23,7 +23,9 @@ library(lubridate)
 StartDate = my_acts %>%
         map_chr("start_date_local") %>%
         ymd_hms()
-
+StartDateDay = my_acts %>%
+  map_chr("start_date_local") %>%
+  as.Date()
 
 DATA=tibble(Id,StartDate,Name,Distance,Moving,Elapsed)
 

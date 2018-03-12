@@ -28,7 +28,18 @@ fluidPage(
       conditionalPanel(
         'input.dataset === "iris"',
         helpText("Display 5 records by default.")
-      )
+      
+,        ################################ Show boxes
+
+        source("columns.R", local = T)$value  #add value other TRUE will be displayed
+        ####################################
+        
+        
+        
+        
+        
+        
+        )
     ),
     mainPanel(
       tabsetPanel(

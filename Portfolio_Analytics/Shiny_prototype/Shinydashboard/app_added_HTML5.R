@@ -36,6 +36,14 @@ ui <- dashboardPage(skin = "blue",
                     
                     ## Body content
                     dashboardBody(
+                      #https://stackoverflow.com/questions/40074340/shiny-mainpanel-width-when-including-markdown
+                      tags$head(tags$style(HTML("
+                               body {
+                                                width: 100% !important;
+                                                max-width: 100% !important;
+                                                }
+                                                
+                                                "))),
                       tabItems(
                         # Login tab
                         tabItem(tabName = "login",
@@ -136,7 +144,31 @@ ui <- dashboardPage(skin = "blue",
                                   valueBoxOutput("progressBox"),
                                   
                                   valueBoxOutput("approvalBox")
+                                  ,
+                                  
+                                  tags$head(
+                                    tags$link(rel = "stylesheet", type = "text/css", href = "css/boxes.css")
+                                  )
+                                  ################################ Show boxes
+                                  #tags$head(
+                                  #  tags$link(rel = "stylesheet", type = "text/css", href = "css/boxes.css")
+                                  #),
+                                  #source("columns.R", local = T)$value  #add value other TRUE will be displayed
+                                  ####################################
+                                  
+                                  
+                                  
+                                  
                                 )
+                                
+                                
+                        
+                                
+                                
+                                
+                                
+                                
+                                
                         ),
                         
                         # Second tab content #########

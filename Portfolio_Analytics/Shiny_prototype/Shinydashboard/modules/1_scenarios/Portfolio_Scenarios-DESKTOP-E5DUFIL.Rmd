@@ -1,0 +1,719 @@
+---
+title: "FRTB Prototype for IRSWaps"
+author: "Danny Rasch"
+date: '2017-03-09'
+output:
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    number_sections: yes
+geometry: margin = 1.2in
+fontsize: 10pt
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r}
+#setwd("c:/FRTB/_Portfolio_01") 
+#load("myfile.RData")
+```
+
+## Including Plots
+
+# fdsfsd
+```{r LoadInput, message=FALSE, warning=FALSE}
+library(tidyquant)
+library(ggplot2)
+data(FANG)
+FANG
+## test ###########
+#### Overwrite FANG
+currentPath=getwd()
+setwd("C:/OneDrive/PowerBI_test/Portfolio_Slicer/Input")
+
+library(data.table)
+Quotes <- fread("C:/OneDrive/PowerBI_test/Portfolio_Slicer/Input/Quotes_detail.csv")
+Quotes$date = as.Date(Quotes$date)
+
+
+#Quotes=as.data.frame(Quotes)
+Quotes <- subset(Quotes, symbol == "SIE.DE" | symbol == "CBK.DE" | symbol == "2PP.F"| symbol == "BAYN.DE"| symbol == "FTK.DE")
+
+
+
+########               does strange things
+##Quotes = filter(Quotes, symbol == c("SIE.DE","CBK.DE"))
+#t = subset(Quotes, date == "2007-01-02")
+#########
+
+
+## Option 1: Manual ticker
+ticker <- c("GDAXI","SSMI","BIO.DE","ZIL2.DE",
+    "SIE.DE","IFX.DE","CBK.DE","2PP.F","BAYN.DE","SDF.DE","KBC.DE")
+	# Set name for BRK-A to BRK.A
+	setSymbolLookup(GDAXI = list(name = "^GDAXI"))
+
+
+
+
+##Option 2:Load ticker from xlsx
+
+#AllocationCurrent = read.csv("AllocationCurrent.csv", sep="")
+
+#(ticker <- as.vector(AllocationCurrent$Symbol))
+ticker <- c("SIE.DE", "CBK.DE", "2PP.F")
+
+
+setwd(currentPath)
+```
+
+
+```{r plot3}
+Quotes_annual_returns <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn, 
+                 period     = "yearly", 
+                 type       = "arithmetic")
+Quotes_annual_returns
+
+
+
+plot3=Quotes_annual_returns %>%
+    ggplot(aes(x = date, y = yearly.returns, fill = symbol)) +
+    geom_bar(stat = "identity") +
+    geom_hline(yintercept = 0, color = palette_light()[[1]]) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "Quotes: Annual Returns",
+         subtitle = "Get annual returns quickly with tq_transmute!",
+         y = "Annual Returns", x = "") + 
+         facet_wrap(~ symbol, ncol = 2) +
+         theme_tq() + 
+         scale_fill_tq()
+plot3
+```
+
+```{r}
+
+
+
+
+Quotes_daily_log_returns <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn, 
+                 period     = "daily", 
+                 type       = "log",
+                 col_rename = "monthly.returns")
+
+Quotes_daily_log_returns %>%
+    ggplot(aes(x = monthly.returns, fill = symbol)) +
+    geom_density(alpha = 0.5) +
+    labs(title = "Quotes: Charting the Daily Log Returns",
+         x = "Monthly Returns", y = "Density") +
+         theme_tq() +
+         scale_fill_tq() + 
+         facet_wrap(~ symbol, ncol = 2)
+
+
+
+
+
+
+
+#Without Periodicity Aggregation
+
+Quotes_daily <- Quotes %>%
+    group_by(symbol)
+
+Quotes_daily %>%
+    ggplot(aes(x = date, y = adjusted, color = symbol)) +
+    geom_line(size = 1) +
+    labs(title = "Daily Stock Prices",
+         x = "", y = "Adjusted Prices", color = "") +
+         facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+         scale_y_continuous(labels = scales::dollar) +
+         theme_tq() + 
+         scale_color_tq()
+
+
+#With Periodicity Aggregation
+
+Quotes_monthly <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = to.period, 
+                 period     = "months")
+
+Quotes_monthly %>%
+    ggplot(aes(x = date, y = adjusted, color = symbol)) +
+    geom_line(size = 1) +
+    labs(title = "Monthly Stock Prices",
+         x = "", y = "Adjusted Prices", color = "") +
+         facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+         scale_y_continuous(labels = scales::dollar) +
+         theme_tq() + 
+         scale_color_tq()
+
+
+
+# Asset Returns
+Quotes_returns_monthly <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn,
+                 period = "monthly",
+                 col_rename = "Ra")
+
+
+# Baseline Returns
+baseline_returns_monthly <- "XLK" %>%
+    tq_get(get  = "stock.prices",
+           from = "2007-01-01", 
+           to   = "2017-11-01") %>%
+           tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn,
+                 period = "monthly",
+                 col_rename = "Rb")
+
+
+
+
+#Next, join the asset returns with the baseline returns by date.
+############################### make date seq from: getsymbols_irregular data.R
+####################
+#########################
+
+
+returns_joined <- left_join(Quotes_returns_monthly, 
+                            baseline_returns_monthly,
+                            by = "date")
+returns_joined
+
+returns_joined <- na.omit(returns_joined)
+
+Quotes_rolling_corr <- returns_joined %>%
+    tq_transmute_xy(x          = Ra, 
+                    y          = Rb,
+                    mutate_fun = runCor,
+                    n          = 6,
+                    col_rename = "rolling.corr.6")
+#And, we can plot the rolling correlations for the Quotes stocks.
+
+Quotes_rolling_corr %>%
+    ggplot(aes(x = date, y = rolling.corr.6, color = symbol)) +
+    geom_hline(yintercept = 0, color = palette_light()[[1]]) +
+    geom_line(size = 1) +
+    labs(title = "Quotes: Six Month Rolling Correlation to XLK",
+         x = "", y = "Correlation", color = "") +
+         facet_wrap(~ symbol, ncol = 2) +
+         theme_tq() + 
+         scale_color_tq()
+
+Quotes <- na.omit(Quotes)
+
+##Example 4: Use TTR MACD to Visualize Moving Average Convergence Divergence
+
+Quotes_macd <- Quotes %>%
+    group_by(symbol) %>%
+    tq_mutate(select     = close, 
+              mutate_fun = MACD, 
+              nFast      = 12, 
+              nSlow      = 26, 
+              nSig       = 9, 
+              maType     = SMA) %>%
+              mutate(diff = macd - signal) %>%
+              select(-(open:volume))
+Quotes_macd
+#And, we can visualize the data like so.
+
+Quotes_macd %>%
+    filter(date >= as_date("2016-10-01")) %>%
+    ggplot(aes(x = date)) + 
+    geom_hline(yintercept = 0, color = palette_light()[[1]]) +
+    geom_line(aes(y = macd, col = symbol)) +
+    geom_line(aes(y = signal), color = "blue", linetype = 2) +
+    geom_bar(aes(y = diff), stat = "identity", color = palette_light()[[1]]) +
+    facet_wrap(~ symbol, ncol = 2, scale = "free_y") +
+    labs(title = "Quotes: Moving Average Convergence Divergence",
+         y = "MACD", x = "", color = "") +
+         theme_tq() +
+         scale_color_tq()
+
+
+
+Quotes_macd <- Quotes %>%
+    group_by(symbol) %>%
+    tq_mutate(select     = close, 
+              mutate_fun = RSI, 
+              n          = 14, 
+              maType     = SMA) 
+
+Quotes_macd
+
+Quotes_macd %>%
+    filter(date >= as_date("2016-10-01")) %>%
+    ggplot(aes(x = date)) + 
+    geom_hline(yintercept = 0, color = palette_light()[[1]]) +
+    geom_line(aes(y = SMA, col = symbol))
+
+
+#Example 5: Use xts apply.quarterly to Get the Max and Min Price for Each Quarter
+
+
+
+Quotes
+Quotes_max_by_qtr <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select = adjusted,
+                 mutate_fun = apply.quarterly,
+                 FUN = max,
+                 col_rename = "max.close") %>%
+                 mutate(year.qtr = paste0(year(date), "-Q", quarter(date))) %>%
+                 select(-date)
+Quotes_max_by_qtr
+
+#The minimum each quarter can be retrieved in much the same way. The data frames can be joined using left_join to get the max and min by quarter.
+
+Quotes_min_by_qtr <- Quotes %>%
+    group_by(symbol) %>%
+    tq_transmute(select = adjusted,
+                 mutate_fun = apply.quarterly,
+                 FUN = min,
+                 col_rename = "min.close") %>%
+                 mutate(year.qtr = paste0(year(date), "-Q", quarter(date))) %>%
+                 select(-date)
+
+Quotes_by_qtr <- left_join(Quotes_max_by_qtr, Quotes_min_by_qtr,
+                         by = c("symbol" = "symbol",
+                                "year.qtr" = "year.qtr"))
+Quotes_by_qtr
+
+
+byQuarterAll <- Quotes_by_qtr %>%
+    ggplot(aes(x = year.qtr, color = symbol)) +
+    geom_segment(aes(xend = year.qtr, y = min.close, yend = max.close),
+                 size = 1) +
+                 geom_point(aes(y = max.close), size = 2) +
+                 geom_point(aes(y = min.close), size = 2) +
+                 facet_wrap(~symbol, ncol = 2, scale = "free_y") +
+                 labs(title = "FANG: Min/Max Price By Quarter",
+         y = "Stock Price", color = "") +
+         theme_tq() +
+         scale_color_tq() +
+         scale_y_continuous(labels = scales::dollar) +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          axis.title.x = element_blank())
+byQuarterAll
+
+
+
+```
+
+## Portfolio
+
+
+
+
+
+```{r, eval=FALSE, include=FALSE}
+weights <- c(
+    0.50, 0.25, 0.25,
+     0.50, 0.4, 0.1,
+     1, 0, 0
+)
+stocks <- ticker[1:3]
+weights_table <-  tibble(stocks) %>%
+    tq_repeat_df(n = n) %>%
+    bind_cols(tibble(weights)) %>%
+    group_by(portfolio)
+weights_table
+```
+
+
+# New weights table
+
+```{r}
+#tidyverse
+library(readxl)
+xlsx_example <- read_excel("AllocationCurrent.xlsx")
+xlsx_example
+
+
+
+library(openxlsx)
+Sys.setenv(R_ZIPCMD = "C:/RBuildTools/3.4/bin/zip")
+
+#wb <- loadWorkbook(file = "OrderBook.xlsx")
+#writeData(wb, sheet = 1, x = iris, name = "iris3", startCol = 10)
+#Allocation <- read.xlsx("AllocationCurrent.xlsx", namedRegion = "Allocation", detectDates = T)
+library(tidyverse)
+Allocation <- read.xlsx("AllocationCurrent.xlsx", sheet = 1, startRow = 1, detectDates = T)
+Allocation<-Allocation %>%
+  group_by(portfolio) %>%
+    mutate(weights=Value/sum(Value))
+
+
+Allocation2 <- read.xlsx("AllocationCurrent.xlsx", sheet = 1, startRow = 1, detectDates = T)
+
+
+distStocks<-Allocation2 %>%
+ distinct(stocks)
+distStocks
+
+
+n = 3
+stocks <- distStocks[,1]
+weights_table <-  tibble(stocks) %>%
+    tq_repeat_df(n = n) %>%
+    group_by(portfolio) %>%
+    left_join(Allocation) %>%
+    replace_na(replace = list(Symbol_short="N/A",weights=0))
+    
+weights_table<-weights_table %>%
+  select(portfolio,stocks,weights)
+
+weights_table
+
+
+
+
+```
+
+#Check missing ticker
+```{r}
+
+distStocks<-distStocks%>%
+ rename(symbol=stocks)
+
+distStocksAV<-Quotes %>%
+ distinct(symbol)
+distStocksAV
+
+Ticker<-distStocks %>%
+  anti_join(distStocksAV) 
+  
+
+
+```
+
+
+## Get intraday data from Alpha Vantage
+
+```{r}
+Quotes_complete=Quotes
+## Source Telegram API
+source("R:/7_DataScience/01_R/12_AlphaVantage/alpha_key.R")
+## Get data 
+for (i in 1:nrow(Ticker)){
+
+S=Ticker[,1][i]
+#S="MFST"
+QuoteAV<- av_get(symbol = S, av_fun = "TIME_SERIES_DAILY", outputsize = "full")
+QuoteAV<- QuoteAV %>%
+  mutate(symbol=S)
+
+
+names(QuoteAV)[1]<-"date"
+
+
+Quotes_complete<- Quotes_complete %>%
+  bind_rows(QuoteAV)
+}
+  
+```
+
+
+```{r}
+Quotes_returns_monthly_complete <- Quotes_complete %>%
+    group_by(symbol) %>%
+    tq_transmute(select     = close, 
+                 mutate_fun = periodReturn,
+                 period = "monthly",
+                 col_rename = "Ra")
+```
+
+
+#Last day of month
+```{r}
+library(lubridate)
+
+data=Quotes_returns_monthly_complete
+data$date2 <- ymd(data$date)
+data$DATE_Month_End <- paste(format(data$date, format="%y-%m"),"-", days_in_month(data$date), sep="")
+#OR
+last_day <- function(date) {
+  ceiling_date(date, "month") - days(1)
+}
+
+
+data2<-data %>%
+  mutate(test=last_day(date))%>%
+  select(symbol,test,Ra)
+
+test2=spread(data2, symbol, Ra)
+```
+
+
+```{r}
+# Single Portfolio depending on n
+#https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ05-performance-analysis-with-tidyquant.html
+
+ticker=distStocks
+
+#stock_returns_monthly <- ticker %>%
+#    tq_get(get  = "stock.prices",
+#           from = "2010-01-01",
+#           to   = "2015-12-31") %>%
+#           group_by(symbol) %>%
+#           tq_transmute(select     = adjusted, 
+#                 mutate_fun = periodReturn, 
+#                 period     = "monthly", 
+#                 col_rename = "Ra")
+
+#replace
+stock_returns_monthly=Quotes_returns_monthly_complete
+
+
+
+#Second, get baseline asset returns, which is the exact same as Steps 1B and 2B from the Single Portfolio example.
+#baseline_returns_monthly <- "XLK" %>%
+#baseline_returns_monthly <- "GDAXI" %>%
+#    tq_get(get  = "stock.prices",
+#           from = "2010-01-01",
+ #          to   = "2015-12-31") %>%
+  #         tq_transmute(select     = adjusted, 
+   #              mutate_fun = periodReturn, 
+    #             period     = "monthly", 
+      #           col_rename = "Rb")
+
+baseline_returns_monthly
+
+
+
+stock_returns_monthly_multi <- stock_returns_monthly %>%
+    tq_repeat_df(n = n)
+stock_returns_monthly_multi
+
+
+
+
+```
+
+```{r}
+#Erros massage when not all assets available
+portfolio_returns_monthly_multi <- stock_returns_monthly_multi %>%
+    tq_portfolio(assets_col  = symbol, 
+                 returns_col = Ra, 
+                 weights     = weights_table, 
+                 col_rename  = "Ra")
+portfolio_returns_monthly_multi
+
+
+
+RaRb_multiple_portfolio <- left_join(portfolio_returns_monthly_multi, 
+                                     baseline_returns_monthly,
+                                     by = "date")
+RaRb_multiple_portfolio
+
+
+
+
+RaRb_multiple_portfolio <- na.omit(RaRb_multiple_portfolio)
+
+
+
+```
+
+```{r}
+library(tidyquant)
+P_CAPM=RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = Rb, performance_fun = table.CAPM)
+P_CAPM
+```
+
+
+
+
+```{r}
+P_SR=RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = NULL, performance_fun = SharpeRatio)
+
+P_VaR <- RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = NULL, performance_fun = VaR, portfolio_method="component")
+P_VaR
+
+
+#tq_performance_fun_options()
+
+P_Stats<-RaRb_multiple_portfolio %>%
+    tq_performance(Ra = Ra, Rb = NULL, performance_fun = table.Stats)
+
+data(managers)
+chart.VaRSensitivity(managers[,1,drop=FALSE],
+		methods=c("HistoricalVaR", "ModifiedVaR", "GaussianVaR"),
+		colorset=bluefocus, lwd=2)
+
+```
+
+
+VaR(R, p = 0.95, method = c("modified", "gaussian","historical", "kernel"),
+           clean = c("none", "boudt", "geltner"),
+                 portfolio_method = c("single", "component","marginal"),
+                 weights = NULL, mu = NULL, sigma = NULL,
+                 m3 = NULL, m4 = NULL, invert = TRUE, ...)
+
+
+## Customizing tq_performance
+
+```{r}
+library(knitr)
+library(kableExtra)
+
+args(SharpeRatio)
+RaRb_multiple_portfolio %>%
+    tq_performance(Ra              = Ra, 
+                   performance_fun = SharpeRatio)
+
+tbl=RaRb_multiple_portfolio %>%
+    tq_performance(Ra              = Ra, 
+                   performance_fun = SharpeRatio,
+                   Rf              = 0.03 / 12)
+
+kable(tbl)
+kable(tbl, format = "latex", booktabs = T)
+dt <- mtcars[1:5, 1:6]
+
+dt %>%
+  kable("html") %>%
+  kable_styling()
+kable(dt, format = "latex", booktabs = T)
+```
+
+
+
+
+# CHARTS
+
+```{r}
+
+
+
+
+args(Return.portfolio)
+
+wts_map <- tibble(
+    symbols = c(ticker[1:2]),
+    weights = c(0.5, 0.5)
+)
+wts_map
+
+
+
+
+portfolio_returns_monthly <- stock_returns_monthly %>%
+    tq_portfolio(assets_col = symbol,
+                 returns_col = Ra,
+                 weights = wts_map,
+                 col_rename = "Ra")
+
+
+
+portfolio_returns_monthly %>%
+    ggplot(aes(x = date, y = Ra)) +
+    geom_bar(stat = "identity", fill = palette_light()[[1]]) +
+    labs(title = "Portfolio Returns",
+         subtitle = "50% AAPL, 0% GOOG, and 50% NFLX",
+         caption = "Shows an above-zero trend meaning positive returns",
+         x = "", y = "Monthly Returns") +
+         geom_smooth(method = "lm") +
+         theme_tq() +
+         scale_color_tq() +
+         scale_y_continuous(labels = scales::percent)
+
+
+#Custom
+
+portfolio_growth_monthly <- stock_returns_monthly %>%
+    tq_portfolio(assets_col = symbol,
+                 returns_col = Ra,
+                 weights = wts_map,
+                 col_rename = "investment.growth",
+                 wealth.index = TRUE) %>%
+                 mutate(investment.growth = investment.growth * 10000)
+
+
+portfolio_growth_monthly %>%
+    ggplot(aes(x = date, y = investment.growth)) +
+    geom_line(size = 2, color = palette_light()[[1]]) +
+    labs(title = "Portfolio Growth",
+         subtitle = "50% AAPL, 0% GOOG, and 50% NFLX",
+         caption = "Now we can really visualize performance!",
+         x = "", y = "Portfolio Value") +
+         geom_smooth(method = "loess") +
+         theme_tq() +
+         scale_color_tq() +
+         scale_y_continuous(labels = scales::dollar)
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+#CHARTS
+
+# Multiple Portfolios
+
+```{r}
+
+
+portfolio_growth_monthly_multi <- stock_returns_monthly_multi %>%
+    tq_portfolio(assets_col = symbol,
+                 returns_col = Ra,
+                 weights = weights_table,
+                 col_rename = "investment.growth",
+                 wealth.index = TRUE) %>%
+                 mutate(investment.growth = investment.growth * 10000)
+
+
+portfolio_growth_monthly_multi %>%
+    ggplot(aes(x = date, y = investment.growth, color = factor(portfolio))) +
+    geom_line(size = 2) +
+    labs(title = "Portfolio Growth",
+         subtitle = "Comparing Multiple Portfolios",
+         caption = "Portfolio 3 is a Standout!",
+         x = "", y = "Portfolio Value",
+         color = "Portfolio") +
+         geom_smooth(method = "loess") +
+         theme_tq() +
+         scale_color_tq() +
+         scale_y_continuous(labels = scales::dollar)
+```
+
+
+```{r}
+tq_performance_fun_options()
+```
+
+
+
+
+
+

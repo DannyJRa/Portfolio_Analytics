@@ -1,0 +1,151 @@
+---
+title: "RegressionTree_prostata"
+output:
+  html_document:
+    theme: cerulean
+    highlight: tango
+    code_folding: hide
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Regression tree
+
+## Modeling and evaluation
+
+To perform the modeling process, we will need to load seven different R packages. Then, we will go through each of the techniques and compare how well they perform
+on the data analyzed with the prior methods in the previous chapters.
+
+
+We will jump right in to the prostate dataset, but let's first load the necessary R
+packages. As always, please ensure that you have the libraries installed prior to
+loading the packages:
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+ library(rpart) #classification and regression trees
+ library(partykit) #treeplots
+ library(MASS) #breast and pima indian data
+ library(ElemStatLearn) #prostate data
+ library(randomForest) #random forests
+ library(gbm) #gradient boosting
+ library(caret) #tune hyper-parameters
+```
+
+We will first do regression with the prostate data and prepare it as we did in
+Chapter 4, Advanced Feature Selection in Linear Models. This involves calling the dataset,
+coding the gleason score as an indicator variable using the ifelse() function, and
+creating the test and train sets. The train set will be pros.train and the test set
+will be pros.test, as follows:
+
+```{r}
+ data(prostate)
+ prostate$gleason = ifelse(prostate$gleason == 6, 0, 1)
+ pros.train = subset(prostate, train==TRUE)[,1:9]
+ pros.test = subset(prostate, train==FALSE)[,1:9]
+```
+
+## Build a regression tree on the train data
+
+
+To build a regression tree on the train data, we will use the rpart() function
+from R's party package. The syntax is quite similar to what we used in the other
+modeling techniques:
+```{r}
+ tree.pros = rpart(lpsa~., data=pros.train)
+ plot(as.party(tree.pros))
+```
+
+## Determine the optimal number of splits in the tree
+
+We can call this object using the print() function and cptable and then examine
+the error per split in order to determine the optimal number of splits in the tree:
+```{r}
+ print(tree.pros$cptable)
+```
+
+
+This is a very important table to analyze. The first column labeled CP is the cost
+complexity parameter. The second column, nsplit, is the number of splits in the tree.
+The rel error column stands for relative error and is the RSS for the number of splits
+divided by the RSS for no splits RSS(k)/RSS(0). Both xerror and xstd are based on the
+ten-fold cross-validation with xerror being the average error and xstd the standard
+deviation of the cross-validation process. We can see that while five splits produced
+the lowest error on the full dataset, four splits produced a slightly less error using
+cross-validation. You can examine this using plotcp():
+
+```{r}
+ plotcp(tree.pros)
+```
+
+## Pruning tree with lowest xerror
+The output of the preceding command is as follows:
+The plot shows us the relative error by the tree size with the corresponding error
+bars. The horizontal line on the plot is the upper limit of the lowest standard error.
+Selecting a tree size, 5, which is four splits, we can build a new tree object where
+xerror is minimized by pruning our tree accordingly by first creating an object
+for cp associated with the pruned tree from the table. Then the prune() function
+handles the rest:
+
+```{r}
+ cp = min(tree.pros$cptable[5,])
+ prune.tree.pros = prune(tree.pros, cp = cp)
+
+```
+With this done, you can plot and compare the full and pruned trees. The tree plots
+produced by the partykit package are much better than those produced by the
+party package. You can simply use the as.party() function as a wrapper in plot():
+
+```{r}
+ plot(as.party(tree.pros))
+```
+
+
+
+The output of the preceding command is as follows:
+Now we will use the as.party() function for the pruned tree:
+
+```{r}
+ plot(as.party(prune.tree.pros))
+```
+
+
+The output of the preceding command is as follows:
+
+Note that the splits are exactly the same in the two trees with the exception of the
+last split, which includes the variable age for the full tree. Interestingly, both the first
+and second splits in the tree are related to the log of cancer volume (lcavol). These
+plots are quite informative as they show the splits, nodes, observations per node, and
+boxplots of the outcome that we are trying to predict.
+
+## Predict on test data
+
+Let's see how well the pruned tree performs on the test data. What we will do
+is create an object of the predicted values using the predict() function and
+incorporate the test data. Then, calculate the errors (the predicted values minus the
+actual values) and finally, the mean of the squared errors:
+```{r}
+ party.pros.test = predict(prune.tree.pros, newdata=pros.test)
+
+```
+### Calculate MSE
+
+```{r}
+rpart.resid = party.pros.test - pros.test$lpsa #calculate residuals
+mean(rpart.resid^2) #caluclate MSE
+```
+
+
+
+We have not improved on the predictive value from our work in Chapter 4, Advanced
+Feature Selection in Linear Models where the baseline MSE was 0.44. However, the
+technique is not without value. One can look at the tree plots that we produced and
+easily explain what the primary drivers behind the response are. As mentioned in
+the introduction, the trees are easy to interpret and explain, which may be more
+important than accuracy in many cases.
+
+SOURCE: Mastering Machine Learning With - Cory Lesmeister

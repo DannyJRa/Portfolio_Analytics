@@ -42,7 +42,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ################################################################################
 ### Load the data
-
+# New case
 library(AppliedPredictiveModeling)
 data(solubility)
 

@@ -21,7 +21,7 @@ mosaic(use ~ error + vis, shuttle)
 table(shuttle$use, shuttle$stability)
 prop.table(table(shuttle$use, shuttle$stability))
 chisq.test(shuttle$use, shuttle$stability)
-
+#
 
 dummies = dummyVars(use ~ ., shuttle, fullRank = TRUE)
 dummies

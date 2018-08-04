@@ -1,5 +1,5 @@
 source("global.R")
-##  #  #    #       ###### #  ##    # ##     ###     #
+##  #  #    #       ###### #  ##    # ##     ###     #  #
 #Source: https://stackoverflow.com/questions/43404058/starting-shiny-app-after-password-input-with-shinydashboard
 library(shiny)
 library(shinydashboard)

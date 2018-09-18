@@ -1,7 +1,7 @@
 sh#if (require(devtools)) install.packages("devtools")#if not already installed
 #devtools::install_github("AnalytixWare/ShinySky")
 #library(shinysky)
-#shinysky::run.shinysky.example()
+
 
 rm(list = ls())
 library(shiny)

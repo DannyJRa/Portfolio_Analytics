@@ -16,6 +16,7 @@ library(methods)
 library(shinyBS)
 library(plotly)
 x <- list()
+#Define data frames
 Data <- data.frame()
 clo <- data.frame()
 

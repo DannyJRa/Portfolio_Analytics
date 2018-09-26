@@ -21,7 +21,7 @@ Data <- data.frame()
 clo <- data.frame()
 
 # Set ticker universe
-ticker<- c("AMZN", "GOOG")
+ticker<- c("AMZN", "GOOG","BMW")
 
 
 ui <- fluidPage(

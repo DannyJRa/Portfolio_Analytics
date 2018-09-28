@@ -54,7 +54,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
         
-      
+   ### test this:  output$plot <- renderPlot(chart.Correlation(dataInput()))
         output$plot <- renderPlot(chart.Correlation(dataInput()))
         output$table <- DT::renderDataTable(datatable(as.data.frame(Cl(dataInput()))))
         output$table1 <- DT::renderDataTable(datatable(as.data.frame(Cl(Last_Close()))))

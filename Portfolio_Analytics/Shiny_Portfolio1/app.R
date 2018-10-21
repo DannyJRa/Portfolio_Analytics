@@ -51,7 +51,7 @@ ui <- fluidPage(
                 
         )
 )
- #server testapp
+ #server testapptest
 server <- function(input, output) {
         
    ### test this:  output$plot <- renderPlot(chart.Correlation(dataInput()))
